@@ -51,6 +51,7 @@ class Emulator:
         print(' [*] Waiting for messages. To exit press CTRL+C')
         self.consume_messages()
 
+
     def pause(self):
         pass
 
@@ -78,18 +79,21 @@ class Emulator:
         message_b = point
         self.to_send.append(message_b)
         #print(f"Angle: {point.angle} now: long[{point.longitude}] lat[{point.latitude}]")
-        print('CLT >> "{}"'.format(message_b.hex()))
+        print('{} >> {}'.format(self.imei,message_b.hex()))
         try:
             list_len = len(self.to_send)
             for k in range(list_len):
                 msg_b = self.to_send.pop(0)
                 self.sock.sendall(msg_b)
                 recv_b = self.sock.recv(256)
-                print('SRV >> "{}"'.format(recv_b.hex()))
+                print('{} >> {}'.format(self.s_addr,recv_b.hex()))
             # if list_len == 1:
             #     time.sleep(1)
         except Exception as e:
             print(e)
+            if self.mq_connection and not self.mq_connection.is_closed:
+                self.mq_connection.close()
+            self.consume_messages()
         # self.i += 1
 
     def callback(self, ch, method, properties, body):
