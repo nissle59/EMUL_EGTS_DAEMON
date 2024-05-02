@@ -79,14 +79,14 @@ class Emulator:
         message_b = point
         self.to_send.append(message_b)
         #print(f"Angle: {point.angle} now: long[{point.longitude}] lat[{point.latitude}]")
-        print('{} >> {}'.format(self.imei,message_b.hex()))
+        print('{} >> {}'.format(self.imei,f'Data sent OK!'))
         try:
             list_len = len(self.to_send)
             for k in range(list_len):
                 msg_b = self.to_send.pop(0)
                 self.sock.sendall(msg_b)
                 recv_b = self.sock.recv(256)
-                print('{} >> {}'.format(self.s_addr,recv_b.hex()))
+                print('{} >> {}'.format(self.s_addr, f'Data received!'))
             # if list_len == 1:
             #     time.sleep(1)
         except Exception as e:
