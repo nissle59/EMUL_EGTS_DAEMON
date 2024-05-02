@@ -18,8 +18,10 @@ imeis = []
 
 class Emulator:
     def __init__(self, imei):
-        self.s_addr = '46.50.138.139'    # отправка в Форт
-        self.s_port = 65521              # отправка в Форт
+        # self.s_addr = '46.50.138.139'    # отправка в Форт
+        # self.s_port = 65521              # отправка в Форт
+        self.s_addr = 'data.rnis.mos.ru'  # отправка в РНИС
+        self.s_port = 4444  # отправка в РНИС
         self.imei = imei
         #self.mq_channel.queue_declare(queue=str(imei), auto_delete=True)
         socket.socket = socks.socksocket
