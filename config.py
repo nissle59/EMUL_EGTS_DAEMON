@@ -1,5 +1,5 @@
 class MQ:
-    host = 'localhost'
+    host = 'rabbitmq'
     #host = '10.8.0.5'
     user = 'rmuser'
     password = 'rmpassword'
