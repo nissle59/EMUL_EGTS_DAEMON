@@ -99,7 +99,11 @@ class Emulator:
     def callback(self, ch, method, properties, body):
         #print(f" [x] Received {body}")
         #p = model.Point.from_json_b(body)
-        self.send(body)
+        msg = b'0000000000000000000000000000000000000000000000000000000000000000'
+        if body != msg:
+            self.send(body)
+        else:
+            self.stop_queue()
 
     def create_connection(self):
         connection_params = pika.ConnectionParameters(
@@ -119,7 +123,7 @@ class Emulator:
         return self.mq_channel
 
     def start_consuming(self, channel):
-        self.mq_channel.basic_consume(queue=self.imei, on_message_callback=self.callback, auto_ack=True)
+        self.mq_channel.basic_consume(queue=self.imei, on_message_callback=self.callback, auto_ack=True, consumer_tag='EMUL_EGTS_DAEMON')
         self.mq_channel.start_consuming()
 
     def consume_messages(self):
@@ -135,6 +139,14 @@ class Emulator:
             finally:
                 if self.mq_connection and not self.mq_connection.is_closed:
                     self.mq_connection.close()
+
+    def stop_queue(self):
+        self.mq_channel.stop_consuming(consumer_tag='EMUL_EGTS_DAEMON')
+        self.mq_channel.queue_delete(queue=self.imei, if_empty=True)
+        try:
+            imeis.remove(self.imei)
+        except:
+            pass
 
 
 def process_thread(imei):
