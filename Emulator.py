@@ -1,14 +1,17 @@
+import json
 import socket
 import time
 import pika
+import requests
 from pika.exceptions import AMQPConnectionError
 import socks
-
+import threading
 import model
 # from db import Database as DB
 from EGTStrack import EGTStrack as E
 from config import MQ
 
+imeis = []
 
 # from ApiService import ApiService as API
 
@@ -34,10 +37,10 @@ class Emulator:
         self.egts_instance = E(deviceimei=imei)
         message_b = self.egts_instance.new_message()  # get message
 
-        print('CLT >> "{}"'.format(message_b.hex()))
+        print('{} >> {}'.format(self.imei, message_b.hex()))
         self.sock.sendall(message_b)  # sends a message to the server
         recv_b = self.sock.recv(256)  #
-        print('SRV >> "{}"'.format(recv_b.hex()))
+        print('{} >> {}'.format(self.s_addr, recv_b.hex()))
         # self.i = 0
         self.to_send = []
 
@@ -88,7 +91,7 @@ class Emulator:
         # self.i += 1
 
     def callback(self, ch, method, properties, body):
-        print(f" [x] Received {body}")
+        #print(f" [x] Received {body}")
         #p = model.Point.from_json_b(body)
         self.send(body)
 
@@ -128,7 +131,37 @@ class Emulator:
                     self.mq_connection.close()
 
 
-if __name__ == '__main__':
-    emul = Emulator('358480081523995')
+def process_thread(imei):
+    emul = Emulator(imei)
     print('Connected')
     emul.start()
+
+
+def add_imei(imei):
+    if imei not in imeis:
+        thread = threading.Thread(target=process_thread, args=(imei,), daemon=True)
+        imeis.append(imei)
+        thread.start()
+        print(f'Started thread {imei} with seconds interval')
+        thread.join()
+        print(f'Finished thread {imei}')
+        try:
+            imeis.remove(imei)
+        except:
+            pass
+
+def queues_list():
+    r = requests.get(f"http://{MQ.host}:{MQ.apiport}/api/queues", auth=(MQ.user, MQ.password), verify=False)
+    js = r.json()
+    queues = []
+    for item in js:
+        if item.get('vhost', None) == MQ.vhost:
+            queues.append(item.get('name'))
+    return queues
+
+if __name__ == '__main__':
+    while True:
+        qs = queues_list()
+        for q in qs:
+            if q not in imeis:
+                add_imei(q)
