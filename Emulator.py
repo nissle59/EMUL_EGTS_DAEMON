@@ -154,19 +154,20 @@ def process_thread(imei):
     print('Connected')
     emul.start()
 
+threads = {}
 
 def add_imei(imei):
     if imei not in imeis:
-        thread = threading.Thread(target=process_thread, args=(imei,), daemon=True)
+        threads[imei] = threading.Thread(target=process_thread, args=(imei,), daemon=True)
         imeis.append(imei)
-        thread.start()
+        threads[imei].start()
         print(f'Started thread {imei} with seconds interval')
-        thread.join()
-        print(f'Finished thread {imei}')
-        try:
-            imeis.remove(imei)
-        except:
-            pass
+        # thread.join()
+        # print(f'Finished thread {imei}')
+        # try:
+        #     imeis.remove(imei)
+        # except:
+        #     pass
 
 def queues_list():
     r = requests.get(f"http://{MQ.host}:{MQ.apiport}/api/queues", auth=(MQ.user, MQ.password), verify=False)
@@ -178,9 +179,19 @@ def queues_list():
             queues.append(item.get('name'))
     return queues
 
+def check_threads():
+    for thread in threads():
+        if not(threads[thread].is_alive()):
+            print(f'Finished thread {thread}')
+            try:
+                imeis.remove(thread)
+            except:
+                pass
+
 if __name__ == '__main__':
     while True:
         qs = queues_list()
+        check_threads()
         for q in qs:
             if q not in imeis:
                 add_imei(q)
