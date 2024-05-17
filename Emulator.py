@@ -172,7 +172,7 @@ def add_imei(imei):
 def queues_list():
     r = requests.get(f"http://{MQ.host}:{MQ.apiport}/api/queues", auth=(MQ.user, MQ.password), verify=False)
     js = r.json()
-    print(js)
+    #print(js)
     queues = []
     for item in js:
         if item.get('vhost', None) == MQ.vhost:
