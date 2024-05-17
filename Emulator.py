@@ -180,7 +180,7 @@ def queues_list():
     return queues
 
 def check_threads():
-    for thread in threads():
+    for thread in threads:
         if not(threads[thread].is_alive()):
             print(f'Finished thread {thread}')
             try:
