@@ -36,7 +36,10 @@ class Emulator:
                 break
             except Exception as e:
                 print(e)
-        self.egts_instance = E(deviceimei=imei)
+        if len(self.imei) < 10:
+            self.egts_instance = E(deviceimei=imei, deviceid=imei)
+        else:
+            self.egts_instance = E(deviceimei=imei)
         message_b = self.egts_instance.new_message()  # get message
 
         print('{} >> {}'.format(self.imei, message_b.hex()))
