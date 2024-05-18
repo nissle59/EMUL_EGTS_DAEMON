@@ -190,11 +190,9 @@ def check_threads():
                 pass
 
 if __name__ == '__main__':
-    q = '44294049'
-    add_imei(q)
-    # while True:
-    #     qs = queues_list()
-    #     check_threads()
-    #     for q in qs:
-    #         if q not in imeis:
-    #             add_imei(q)
+    while True:
+        qs = queues_list()
+        check_threads()
+        for q in qs:
+            if q not in imeis:
+                add_imei(q)
