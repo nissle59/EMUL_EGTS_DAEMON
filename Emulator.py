@@ -28,11 +28,7 @@ class Emulator:
         self.sock = socket.socket()
         while True:
             try:
-                # self.sock.connect(('data.rnis.mos.ru', 4444))  # отправка в РНИС
-                self.sock.connect((self.s_addr, self.s_port))     # отправка в Форт
-                # self.sock.connect(('10.8.0.1', 6000))           # отправка на VPS
-                # self.sock.connect(('127.0.0.1', 7777))          # отрравка в сниффер
-
+                self.sock.connect((self.s_addr, self.s_port))
                 break
             except Exception as e:
                 print(e)
@@ -192,9 +188,11 @@ def check_threads():
                 pass
 
 if __name__ == '__main__':
-    while True:
-        qs = queues_list()
-        check_threads()
-        for q in qs:
-            if q not in imeis:
-                add_imei(q)
+    q = '44294049'
+    add_imei(q)
+    # while True:
+    #     qs = queues_list()
+    #     check_threads()
+    #     for q in qs:
+    #         if q not in imeis:
+    #             add_imei(q)
