@@ -91,9 +91,9 @@ class Emulator:
             #     time.sleep(1)
         except Exception as e:
             print(e)
-            if self.mq_connection and not self.mq_connection.is_closed:
-                self.mq_connection.close()
-            self.consume_messages()
+            # if self.mq_connection and not self.mq_connection.is_closed:
+            #     self.mq_connection.close()
+            # self.consume_messages()
         # self.i += 1
 
     def callback(self, ch, method, properties, body):
