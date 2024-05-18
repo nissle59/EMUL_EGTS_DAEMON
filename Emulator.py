@@ -32,6 +32,7 @@ class Emulator:
                 break
             except Exception as e:
                 print(e)
+        print(f"IMEI Length: {len(self.imei)}")
         if len(self.imei) < 10:
             print('IMEI is not IMEI, use ID')
             self.egts_instance = E(deviceimei=imei, deviceid=imei)
