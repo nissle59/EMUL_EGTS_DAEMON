@@ -14,24 +14,24 @@ from config import MQ
 imeis = []
 
 # from ApiService import ApiService as API
+global s_addr
+global s_port
+s_addr = 'data.rnis.mos.ru'  # отправка в РНИС
+s_port = 4444  # отправка в РНИС
+socket.socket = socks.socksocket
+global sock
+sock = socket.socket()
 
 
 class Emulator:
     def __init__(self, imei):
         # self.s_addr = '46.50.138.139'    # отправка в Форт
         # self.s_port = 65521              # отправка в Форт
-        self.s_addr = 'data.rnis.mos.ru'  # отправка в РНИС
-        self.s_port = 4444  # отправка в РНИС
+        # self.s_addr = 'data.rnis.mos.ru'  # отправка в РНИС
+        # self.s_port = 4444  # отправка в РНИС
         self.imei = imei
         #self.mq_channel.queue_declare(queue=str(imei), auto_delete=True)
-        socket.socket = socks.socksocket
-        self.sock = socket.socket()
-        while True:
-            try:
-                self.sock.connect((self.s_addr, self.s_port))
-                break
-            except Exception as e:
-                print(e)
+
         print(f"IMEI Length: {len(self.imei)}")
         if len(self.imei) < 10:
             print('IMEI is not IMEI, use ID')
@@ -41,9 +41,9 @@ class Emulator:
         message_b = self.egts_instance.new_message()  # get message
 
         print('{} >> {}'.format(self.imei, message_b.hex()))
-        self.sock.sendall(message_b)  # sends a message to the server
-        recv_b = self.sock.recv(256)  #
-        print('{} >> {}'.format(self.s_addr, recv_b.hex()))
+        sock.sendall(message_b)  # sends a message to the server
+        recv_b = sock.recv(256)  #
+        print('{} >> {}'.format(s_addr, recv_b.hex()))
         # self.i = 0
         self.to_send = []
 
@@ -58,7 +58,7 @@ class Emulator:
 
     def stop(self):
         try:
-            self.sock.close()
+            sock.close()
         except Exception as e:
             print(e)
 
@@ -85,9 +85,9 @@ class Emulator:
             list_len = len(self.to_send)
             for k in range(list_len):
                 msg_b = self.to_send.pop(0)
-                self.sock.sendall(msg_b)
-                recv_b = self.sock.recv(256)
-                print('{} >> {}'.format(self.s_addr, f'Data received!'))
+                sock.sendall(msg_b)
+                recv_b = sock.recv(256)
+                print('{} >> {}'.format(s_addr, f'Data received!'))
             # if list_len == 1:
             #     time.sleep(1)
         except Exception as e:
@@ -191,6 +191,12 @@ def check_threads():
 
 if __name__ == '__main__':
     while True:
+        while True:
+            try:
+                sock.connect((s_addr, s_port))
+                break
+            except Exception as e:
+                print(e)
         qs = queues_list()
         check_threads()
         for q in qs:
