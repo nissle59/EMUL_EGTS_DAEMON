@@ -186,8 +186,8 @@ def check_threads():
             print(f'Finished thread {thread}')
             try:
                 imeis.remove(thread)
-            except:
-                pass
+            except Exception as e:
+                print(e)
 
 if __name__ == '__main__':
     while True:

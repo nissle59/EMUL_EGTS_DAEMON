@@ -93,10 +93,11 @@ def bitstring_to_bytes(s, byteorder):
 class EGTStrack(object):
     #def __init__(self, deviceid, deviceimei=None):
     def __init__(self, deviceimei, deviceid=None):
-        if deviceid:
-            self._tid = int(deviceid)
-        else:
-            self._tid = 40614705
+        # if deviceid:
+        #     self._tid = int(deviceid)
+        # else:
+        #     self._tid = 40614705
+        self._tid = 40614705
         #self._tid = int(deviceimei)
         #self._tid = 40614705
         self._imei = str(deviceimei)
