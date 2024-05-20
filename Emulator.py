@@ -41,7 +41,10 @@ class Emulator:
                 # Обработка ошибки 'Broken pipe'
                 config.logger.info('Broken pipe or bad file decr error detected.')
                 # Тут можно закрыть сокет и попытаться восстановить соединение
-                self.sock.close()
+                try:
+                    self.sock.close()
+                except:
+                    pass
                 self.socket_connect()
                 self.sock.sendall(message_b)  # sends a message to the server
         recv_b = self.sock.recv(256)  #
@@ -101,7 +104,9 @@ class Emulator:
                         # Обработка ошибки 'Broken pipe'
                         config.logger.info('Broken pipe or bad file error detected.')
                         # Тут можно закрыть сокет и попытаться восстановить соединение
-                        self.sock.close()
+                        try:
+                            self.sock.close()
+                        except: pass
                         self.socket_connect()
                         self.sock.sendall(msg_b)  # sends a message to the server
                 recv_b = self.sock.recv(256)
