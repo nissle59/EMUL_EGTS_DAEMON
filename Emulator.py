@@ -29,11 +29,7 @@ class Emulator:
         self.sock = socket.socket()
         self.socket_connect()
         print(f"IMEI Length: {len(self.imei)}")
-        if len(self.imei) < 10:
-            print('IMEI is not IMEI, use ID')
-            self.egts_instance = E(deviceimei=imei, deviceid=imei)
-        else:
-            self.egts_instance = E(deviceimei=imei)
+        self.egts_instance = E(deviceimei=imei)
         message_b = self.egts_instance.new_message()  # get message
 
         print('{} >> {}'.format(self.imei, message_b.hex()))
