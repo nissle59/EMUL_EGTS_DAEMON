@@ -96,10 +96,10 @@ class Emulator:
                 msg_b = self.to_send.pop(0)
                 try:
                     self.sock.sendall(msg_b)  # sends a message to the server
-                except IOError as e:
-                    if e.errno == errno.EPIPE:
+                except Exception as e:
+                    if e.errno in [errno.EPIPE, errno.EBADF]:
                         # Обработка ошибки 'Broken pipe'
-                        config.logger.info('Broken pipe error detected.')
+                        config.logger.info('Broken pipe or bad file error detected.')
                         # Тут можно закрыть сокет и попытаться восстановить соединение
                         self.sock.close()
                         self.socket_connect()
