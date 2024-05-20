@@ -61,6 +61,7 @@ class Emulator:
                 break
             except Exception as e:
                 config.logger.info(e)
+            time.sleep(1)
 
     def start(self):
         config.logger.info(' [*] Waiting for messages. To exit press CTRL+C')
@@ -109,6 +110,7 @@ class Emulator:
                         try:
                             self.sock.close()
                         except: pass
+                        time.sleep(1)
                         self.socket_connect()
                         self.sock.sendall(msg_b)  # sends a message to the server
                 recv_b = self.sock.recv(256)
