@@ -36,10 +36,10 @@ class Emulator:
         config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
         try:
             self.sock.sendall(message_b)  # sends a message to the server
-        except IOError as e:
-            if e.errno == errno.EPIPE:
+        except Exception as e:
+            if e.errno in [errno.EPIPE, errno.EBADF]:
                 # Обработка ошибки 'Broken pipe'
-                config.logger.info('Broken pipe error detected.')
+                config.logger.info('Broken pipe or bad file decr error detected.')
                 # Тут можно закрыть сокет и попытаться восстановить соединение
                 self.sock.close()
                 self.socket_connect()
