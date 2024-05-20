@@ -1,5 +1,6 @@
 import datetime
-from pprint import pprint
+#from pconfig.logger.info import pconfig.logger.info
+import config
 from time import time
 
 dt_offset = 1262293200
@@ -119,8 +120,8 @@ class EGTStrack(object):
         dt = round(datetime.datetime.now(datetime.UTC).replace(tzinfo=None).timestamp())
         # initial_date = datetime.datetime(year=1970, month=1, day=1, hour=0, minute=0, second=0)
         # seconds = int((datetime.datetime.utcnow() - initial_date - datetime.timedelta(minutes=180)).total_seconds()) +(3600*3)
-        # print(seconds)
-        print(dt)
+        # config.logger.info(seconds)
+        config.logger.info(dt)
         return dt
         #return int(seconds)
 
@@ -267,7 +268,7 @@ class EGTStrack(object):
         if self._service == None:
             raise TypeError('Unknown packet type: {}'.format(self._service))
         self._pid = self._rn
-        print('number packet^', self._pid)
+        config.logger.info('number packet^', self._pid)
         if self._service != None:
             self._sfrcs = self.data_crc(self._service).to_bytes(2, byteorder='little')
             self._fdl = len(self._service).to_bytes(2, byteorder='little')
@@ -295,10 +296,10 @@ class EGTStrack(object):
         getBytes += packetHL
         getBytes += packetHE
         getBytes += self._fdl  # .to_bytes(2, byteorder='big')
-        # print(self._pid.to_bytes(2, byteorder='little'))
+        # config.logger.info(self._pid.to_bytes(2, byteorder='little'))
         getBytes += self._pid.to_bytes(2, byteorder='little')
         getBytes += self._pt
-        # print(len(getBytes))
+        # config.logger.info(len(getBytes))
         return getBytes
         pass
 

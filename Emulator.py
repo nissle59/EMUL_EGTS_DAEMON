@@ -10,6 +10,7 @@ import threading
 import model
 # from db import Database as DB
 from EGTStrack import EGTStrack as E
+import config
 from config import MQ
 
 imeis = []
@@ -28,23 +29,23 @@ class Emulator:
         socket.socket = socks.socksocket
         self.sock = socket.socket()
         self.socket_connect()
-        print(f"IMEI Length: {len(self.imei)}")
+        config.logger.info(f"IMEI Length: {len(self.imei)}")
         self.egts_instance = E(deviceimei=imei)
         message_b = self.egts_instance.new_message()  # get message
 
-        print('{} >> {}'.format(self.imei, message_b.hex()))
+        config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
         try:
             self.sock.sendall(message_b)  # sends a message to the server
         except IOError as e:
             if e.errno == errno.EPIPE:
                 # Обработка ошибки 'Broken pipe'
-                print('Broken pipe error detected.')
+                config.logger.info('Broken pipe error detected.')
                 # Тут можно закрыть сокет и попытаться восстановить соединение
                 self.sock.close()
                 self.socket_connect()
                 self.sock.sendall(message_b)  # sends a message to the server
         recv_b = self.sock.recv(256)  #
-        print('{} >> {}'.format(self.s_addr, recv_b.hex()))
+        config.logger.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
         # self.i = 0
         self.to_send = []
 
@@ -54,10 +55,10 @@ class Emulator:
                 self.sock.connect((self.s_addr, self.s_port))
                 break
             except Exception as e:
-                print(e)
+                config.logger.info(e)
 
     def start(self):
-        print(' [*] Waiting for messages. To exit press CTRL+C')
+        config.logger.info(' [*] Waiting for messages. To exit press CTRL+C')
         self.consume_messages()
 
 
@@ -68,7 +69,7 @@ class Emulator:
         try:
             self.sock.close()
         except Exception as e:
-            print(e)
+            config.logger.info(e)
 
     def clear(self):
         pass
@@ -87,8 +88,8 @@ class Emulator:
         #message_b = self.prepare_message(point)
         message_b = point
         self.to_send.append(message_b)
-        #print(f"Angle: {point.angle} now: long[{point.longitude}] lat[{point.latitude}]")
-        print('{} >> {}'.format(self.imei,f'Data sent OK!'))
+        #config.logger.info(f"Angle: {point.angle} now: long[{point.longitude}] lat[{point.latitude}]")
+        config.logger.info('{} >> {}'.format(self.imei,f'Data sent OK!'))
         try:
             list_len = len(self.to_send)
             for k in range(list_len):
@@ -98,24 +99,24 @@ class Emulator:
                 except IOError as e:
                     if e.errno == errno.EPIPE:
                         # Обработка ошибки 'Broken pipe'
-                        print('Broken pipe error detected.')
+                        config.logger.info('Broken pipe error detected.')
                         # Тут можно закрыть сокет и попытаться восстановить соединение
                         self.sock.close()
                         self.socket_connect()
                         self.sock.sendall(msg_b)  # sends a message to the server
                 recv_b = self.sock.recv(256)
-                print('{} >> {}'.format(self.s_addr, f'Data received!'))
+                config.logger.info('{} >> {}'.format(self.s_addr, f'Data received!'))
             # if list_len == 1:
             #     time.sleep(1)
         except Exception as e:
-            print(e)
+            config.logger.info(e)
             # if self.mq_connection and not self.mq_connection.is_closed:
             #     self.mq_connection.close()
             # self.consume_messages()
         # self.i += 1
 
     def callback(self, ch, method, properties, body):
-        #print(f" [x] Received {body}")
+        #config.logger.info(f" [x] Received {body}")
         #p = model.Point.from_json_b(body)
         msg = b'0000000000000000000000000000000000000000000000000000000000000000'
         if body != msg:
@@ -152,7 +153,7 @@ class Emulator:
                 self.start_consuming(self.mq_channel)
             except AMQPConnectionError as e:
                 # Можно реализовать здесь вашу логику логирования или отчетности
-                print("Connection was closed, retrying...")
+                config.logger.info("Connection was closed, retrying...")
                 time.sleep(5)  # Ждем перед повторной попыткой переподключения
             finally:
                 if self.mq_connection and not self.mq_connection.is_closed:
@@ -169,7 +170,7 @@ class Emulator:
 
 def process_thread(imei):
     emul = Emulator(imei)
-    print('Connected')
+    config.logger.info('Connected')
     emul.start()
 
 threads = {}
@@ -179,9 +180,9 @@ def add_imei(imei):
         threads[imei] = threading.Thread(target=process_thread, args=(imei,), daemon=True)
         imeis.append(imei)
         threads[imei].start()
-        print(f'Started thread {imei} with seconds interval')
+        config.logger.info(f'Started thread {imei} with seconds interval')
         # thread.join()
-        # print(f'Finished thread {imei}')
+        # config.logger.info(f'Finished thread {imei}')
         # try:
         #     imeis.remove(imei)
         # except:
@@ -190,7 +191,7 @@ def add_imei(imei):
 def queues_list():
     r = requests.get(f"http://{MQ.host}:{MQ.apiport}/api/queues", auth=(MQ.user, MQ.password), verify=False)
     js = r.json()
-    #print(js)
+    #config.logger.info(js)
     queues = []
     for item in js:
         if item.get('vhost', None) == MQ.vhost:
@@ -200,11 +201,11 @@ def queues_list():
 def check_threads():
     for thread in threads:
         if not(threads[thread].is_alive()):
-            print(f'Finished thread {thread}')
+            config.logger.info(f'Finished thread {thread}')
             try:
                 imeis.remove(thread)
             except Exception as e:
-                print(e)
+                config.logger.info(e)
 
 if __name__ == '__main__':
     while True:
