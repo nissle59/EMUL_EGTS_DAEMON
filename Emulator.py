@@ -25,37 +25,39 @@ class Emulator:
         self.s_addr = 'data.rnis.mos.ru'  # отправка в РНИС
         self.s_port = 4444  # отправка в РНИС
         self.imei = imei
+        config.logger.info(f"IMEI Length: {len(self.imei)}")
         #self.mq_channel.queue_declare(queue=str(imei), auto_delete=True)
         socket.socket = socks.socksocket
         self.sock = socket.socket()
         self.socket_connect()
-        config.logger.info(f"IMEI Length: {len(self.imei)}")
-        self.egts_instance = E(deviceimei=imei)
-        message_b = self.egts_instance.new_message()  # get message
+          # sends a message to the server
 
-        config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
-        try:
-            self.sock.sendall(message_b)  # sends a message to the server
-        except Exception as e:
-            if e.errno in [errno.EPIPE, errno.EBADF]:
-                # Обработка ошибки 'Broken pipe'
-                config.logger.info('Broken pipe or bad file decr error detected.')
-                # Тут можно закрыть сокет и попытаться восстановить соединение
-                try:
-                    self.sock.close()
-                except:
-                    pass
-                self.socket_connect()
-                self.sock.sendall(message_b)  # sends a message to the server
-        recv_b = self.sock.recv(256)  #
-        config.logger.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
-        # self.i = 0
-        self.to_send = []
 
     def socket_connect(self):
         while True:
             try:
                 self.sock.connect((self.s_addr, self.s_port))
+                self.egts_instance = E(deviceimei=self.imei)
+                message_b = self.egts_instance.new_message()  # get message
+
+                config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
+                try:
+                    self.sock.sendall(message_b)  # sends a message to the server
+                    recv_b = self.sock.recv(256)  #
+                    config.logger.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
+                    # self.i = 0
+                    self.to_send = []
+                except IOError as e:
+                    if e.errno in [errno.EPIPE, errno.EBADF]:
+                        # Обработка ошибки 'Broken pipe'
+                        config.logger.info('Broken pipe or bad file decr error detected.')
+                        # Тут можно закрыть сокет и попытаться восстановить соединение
+                        try:
+                            self.sock.close()
+                        except:
+                            pass
+                        self.socket_connect()
+                        self.sock.sendall(message_b)
                 break
             except Exception as e:
                 config.logger.info(e)
