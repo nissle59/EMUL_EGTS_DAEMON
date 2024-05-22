@@ -1,5 +1,4 @@
 import datetime
-#from pconfig.logger.info import pconfig.logger.info
 import config
 from time import time
 
@@ -262,7 +261,7 @@ class EGTStrack(object):
         if self._service == None:
             raise TypeError('Unknown packet type: {}'.format(self._service))
         self._pid = self._rn
-        config.logger.info('number packet^', self._pid)
+        config.logger.info(f'number packet^ {self._pid}')
         if self._service != None:
             self._sfrcs = self.data_crc(self._service).to_bytes(2, byteorder='little')
             self._fdl = len(self._service).to_bytes(2, byteorder='little')
