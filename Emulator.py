@@ -209,6 +209,7 @@ def add_imei(imei):
 
 def queues_list():
     defprx = socks.get_default_proxy()
+    socks.setdefaultproxy(None)
     r = requests.get(f"http://{MQ.host}:{MQ.apiport}/api/queues", auth=(MQ.user, MQ.password), verify=False, proxies=None)
     socks.setdefaultproxy(defprx)
     js = r.json()
