@@ -48,8 +48,8 @@ def get_active_proxies(proxy_type: str = 'SOCKS5'):
     else:
         view_name = 'public.active_proxies'
 
-    query = "SELECT * FROM %(view_name)s"
-    cur.execute(query, {'view_name':view_name})
+    query = f"SELECT * FROM {view_name}"
+    cur.execute(query)
     data = cur.fetchall()
     if data is None:
         return []
