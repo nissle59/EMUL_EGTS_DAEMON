@@ -44,7 +44,7 @@ def get_active_proxies(proxy_type: str = 'SOCKS5'):
     if proxy_type == "HTTPS":
         view_name = 'public.https_active_proxies'
     elif proxy_type == 'SOCKS5':
-        view_name = 'public.socks_active_proxies'
+        view_name = 'public.soocks_active_proxies'
     else:
         view_name = 'public.active_proxies'
 
