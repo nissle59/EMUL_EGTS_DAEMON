@@ -208,7 +208,7 @@ def add_imei(imei):
         #     pass
 
 def queues_list():
-    r = requests.get(f"http://{MQ.host}:{MQ.apiport}/api/queues", auth=(MQ.user, MQ.password), verify=False)
+    r = requests.get(f"http://{MQ.host}:{MQ.apiport}/api/queues", auth=(MQ.user, MQ.password), verify=False, proxies=None)
     js = r.json()
     #config.logger.info(js)
     queues = []
