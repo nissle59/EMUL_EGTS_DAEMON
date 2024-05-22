@@ -11,6 +11,14 @@ class MQ:
     apiport = 15672
     vhost = 'egts'
 
+DATABASE = {
+    #'host': 'db.local',
+    'host': '10.8.0.5',
+    'user': 'postgres',
+    'password': 'psqlpass',
+    'database': 'vindcgibdd'
+}
+
 logging.basicConfig(level=logging.INFO)
 
 handler = logging.FileHandler('app.log')

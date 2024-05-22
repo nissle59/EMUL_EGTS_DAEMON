@@ -2,11 +2,15 @@ import errno
 import json
 import socket
 import time
+from itertools import cycle
+
 import pika
 import requests
 from pika.exceptions import AMQPConnectionError
 import socks
 import threading
+
+import db
 import model
 # from db import Database as DB
 from EGTStrack import EGTStrack as E
@@ -15,6 +19,8 @@ from config import MQ
 
 imeis = []
 
+proxies = db.get_active_proxies()
+r_proxies = cycle(proxies)
 # from ApiService import ApiService as API
 
 
@@ -27,8 +33,7 @@ class Emulator:
         self.imei = imei
         config.logger.info(f"IMEI Length: {len(self.imei)}")
         #self.mq_channel.queue_declare(queue=str(imei), auto_delete=True)
-        socket.socket = socks.socksocket
-        self.sock = socket.socket()
+
         self.socket_connect()
           # sends a message to the server
 
@@ -36,6 +41,10 @@ class Emulator:
     def socket_connect(self):
         while True:
             try:
+                prx = next(r_proxies)
+                socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, prx['ip'], int(prx['port']), True, prx['username'], prx['password'])
+                socket.socket = socks.socksocket
+                self.sock = socket.socket()
                 self.sock.connect((self.s_addr, self.s_port))
                 self.egts_instance = E(deviceimei=self.imei)
                 message_b = self.egts_instance.new_message()  # get message
@@ -56,12 +65,13 @@ class Emulator:
                             self.sock.close()
                         except:
                             pass
+                        time.sleep(1)
                         self.socket_connect()
                         self.sock.sendall(message_b)
                 break
             except Exception as e:
                 config.logger.info(e)
-            time.sleep(1)
+
 
     def start(self):
         config.logger.info(' [*] Waiting for messages. To exit press CTRL+C')
