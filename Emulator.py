@@ -71,6 +71,7 @@ class Emulator:
                 break
             except Exception as e:
                 config.logger.info(e)
+                time.sleep(1)
 
 
     def start(self):
