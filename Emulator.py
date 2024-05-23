@@ -224,7 +224,11 @@ def queues_list():
     queues = []
     for item in js:
         if item.get('vhost', None) == MQ.vhost:
-            queues.append(item.get('name'))
+            name = item.get('name')
+            try:
+                queues.append(int(name))
+            except:
+                pass
     return queues
 
 def check_threads():
