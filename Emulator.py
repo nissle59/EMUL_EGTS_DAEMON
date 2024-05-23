@@ -139,7 +139,8 @@ class Emulator:
     def callback(self, ch, method, properties, body):
         config.logger.info(f" [x] Received {body}")
         #p = model.Point.from_json_b(body)
-        msg = b'0000000000000000000000000000000000000000000000000000000000000000'
+        #msg = b'0000000000000000000000000000000000000000000000000000000000000000'
+        msg = int(0).to_bytes(64, byteorder='little')
         if body != msg:
             self.send(body)
         else:
