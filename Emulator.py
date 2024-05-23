@@ -31,6 +31,7 @@ class Emulator:
         self.s_addr = 'data.rnis.mos.ru'  # отправка в РНИС
         self.s_port = 4444  # отправка в РНИС
         self.imei = imei
+        self.mq_connection = None
         config.logger.info(f"IMEI Length: {len(self.imei)}")
         #self.mq_channel.queue_declare(queue=str(imei), auto_delete=True)
 
@@ -176,8 +177,9 @@ class Emulator:
                 config.logger.info("Connection was closed, retrying...")
                 time.sleep(5)  # Ждем перед повторной попыткой переподключения
             finally:
-                if self.mq_connection and not self.mq_connection.is_closed:
-                    self.mq_connection.close()
+                if self.mq_connection:
+                    if not self.mq_connection.is_closed:
+                        self.mq_connection.close()
 
     def stop_queue(self):
         self.mq_channel.stop_consuming(consumer_tag='EMUL_EGTS_DAEMON')
