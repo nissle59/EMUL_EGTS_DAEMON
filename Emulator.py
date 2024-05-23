@@ -161,7 +161,7 @@ class Emulator:
 
     def create_channel(self, connection):
         self.mq_channel = connection.channel()
-        self.mq_channel.queue_declare(queue=self.imei, auto_delete=False)
+        self.mq_channel.queue_declare(queue=self.imei, auto_delete=False, durable=True)
         return self.mq_channel
 
     def start_consuming(self, channel):
