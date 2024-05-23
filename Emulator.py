@@ -136,7 +136,7 @@ class Emulator:
         # self.i += 1
 
     def callback(self, ch, method, properties, body):
-        #config.logger.info(f" [x] Received {body}")
+        config.logger.info(f" [x] Received {body}")
         #p = model.Point.from_json_b(body)
         msg = b'0000000000000000000000000000000000000000000000000000000000000000'
         if body != msg:
@@ -182,6 +182,7 @@ class Emulator:
     def stop_queue(self):
         self.mq_channel.stop_consuming(consumer_tag='EMUL_EGTS_DAEMON')
         self.mq_channel.queue_delete(queue=self.imei, if_empty=True)
+        config.logger.info(f'Queue deleted: {self.imei}')
         try:
             imeis.remove(self.imei)
         except:
