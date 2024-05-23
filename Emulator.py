@@ -185,7 +185,7 @@ class Emulator:
 
     def stop_queue(self):
         self.mq_channel.stop_consuming(consumer_tag='EMUL_EGTS_DAEMON')
-        self.mq_channel.queue_delete(queue=self.imei, if_empty=True)
+        self.mq_channel.queue_delete(queue=self.imei)
         config.logger.info(f'Queue deleted: {self.imei}')
         try:
             imeis.remove(self.imei)
