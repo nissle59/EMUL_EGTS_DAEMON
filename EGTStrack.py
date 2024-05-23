@@ -1,6 +1,5 @@
 import datetime
 import config
-from time import time
 
 dt_offset = 1262293200
 
@@ -109,32 +108,28 @@ class EGTStrack(object):
         self.add_service(1)
 
 
-    def get_date_time(self):
-        dt = round(datetime.datetime.now(datetime.UTC).replace(tzinfo=None).timestamp())
-        # initial_date = datetime.datetime(year=1970, month=1, day=1, hour=0, minute=0, second=0)
-        # seconds = int((datetime.datetime.utcnow() - initial_date - datetime.timedelta(minutes=180)).total_seconds()) +(3600*3)
-        # config.logger.info(seconds)
-        config.logger.info(dt)
+    def get_date_time(self, offset = None, ts=None):
+        if offset:
+            dt = round(datetime.datetime.now(datetime.UTC).replace(tzinfo=None).timestamp()) + offset
+        else:
+            dt = round(datetime.datetime.now(datetime.UTC).replace(tzinfo=None).timestamp())
+        if ts:
+            dt = round(ts)
         return dt
-        #return int(seconds)
 
-    # def get_date_time2(self):
-    #     d = datetime.datetime.now()
-    #     epoch = datetime.datetime(1970, 1, 1)
-    #     return int(
-    #         (d - epoch).total_seconds() /1000
-    #     )
-    #
-    # def get_date_time3(self):
-    #     d = datetime.datetime.utcnow()
-    #     epoch = datetime.datetime(1970, 1, 1)
-    #     return int(
-    #         (d - epoch).total_seconds() / 1000
-    #     )
 
     def add_service(self, record_types, *args, **kwargs):
         if self._service == None:
             self._service = b''
+        if kwargs.get('offset', None):
+            offset = kwargs.get('offset', None)
+        else:
+            offset = None
+        if kwargs.get('ts', None):
+            ts = kwargs.get('ts', None)
+        else:
+            ts = None
+
         sst = b'\x01'  # Source service type 1 byte
         rst = b'\x01'  # recipient service type 1 byte
         rfl = b'\x00'  # record flags
@@ -142,7 +137,7 @@ class EGTStrack(object):
         rn = self._rn.to_bytes(2, byteorder='little')  # record number
         if record_types == 1:
             _oid = self._tid.to_bytes(4, byteorder='little')
-            tm = (self.get_date_time()-dt_offset).to_bytes(4, byteorder='little')
+            tm = (self.get_date_time(offset=offset, ts=ts)-dt_offset).to_bytes(4, byteorder='little')
             rfl = b'\x05'  # record flag
             self._pt = b'\x01'  # Ид пакета # EGTSAppdata
             recLen = b''  # 2 bytes
@@ -161,7 +156,7 @@ class EGTStrack(object):
         elif record_types == 2:
             rfl = b'\x05'  # record flags
             _oid = self._tid.to_bytes(4, byteorder='little')
-            tm = (self.get_date_time()-dt_offset).to_bytes(4, byteorder='little')
+            tm = (self.get_date_time(offset=offset, ts=ts)-dt_offset).to_bytes(4, byteorder='little')
             srt = record_types.to_bytes(1, byteorder='little')
             mservice = b''
             mservice += b'\x03'  # MT
@@ -185,7 +180,7 @@ class EGTStrack(object):
             _oid = self._tid.to_bytes(4, byteorder='little')
 
             # время
-            tm = (self.get_date_time()-dt_offset).to_bytes(4, byteorder='little')
+            tm = (self.get_date_time(offset=offset, ts=ts)-dt_offset).to_bytes(4, byteorder='little')
 
             # record flags
             rfl = b'\x05'
@@ -205,7 +200,7 @@ class EGTStrack(object):
             lat = int(abs(kwargs['lat']) / 90 * 0xFFFFFFFF).to_bytes(4, byteorder='little')  #
 
             # navigation time (number of seconds since 00:00:00 01.01.2010 UTC)
-            ntm = (self.get_date_time()-dt_offset).to_bytes(4, byteorder='little')
+            ntm = (self.get_date_time(offset=offset, ts=ts)-dt_offset).to_bytes(4, byteorder='little')
 
             # defines additional parameters of the navigation parcel;
             flags = llflags.to_bytes(1, byteorder='little')
@@ -261,7 +256,7 @@ class EGTStrack(object):
         if self._service == None:
             raise TypeError('Unknown packet type: {}'.format(self._service))
         self._pid = self._rn
-        config.logger.info(f'number packet^ {self._pid}')
+        #config.logger.info('number packet^', self._pid)
         if self._service != None:
             self._sfrcs = self.data_crc(self._service).to_bytes(2, byteorder='little')
             self._fdl = len(self._service).to_bytes(2, byteorder='little')

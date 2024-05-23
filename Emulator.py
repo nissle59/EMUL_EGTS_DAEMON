@@ -142,7 +142,8 @@ class Emulator:
         #msg = b'0000000000000000000000000000000000000000000000000000000000000000'
         msg = int(0).to_bytes(64, byteorder='little')
         if body != msg:
-            self.send(body)
+            m = model.Point.from_b64(body)
+            self.send(m.to_egts_packet(self.imei))
         else:
             config.logger.info("!!!!!!!!!! EOF !!!!!!!!!!")
             self.stop_queue()
