@@ -144,6 +144,7 @@ class Emulator:
         if body != msg:
             self.send(body)
         else:
+            config.logger.info("!!!!!!!!!! EOF !!!!!!!!!!")
             self.stop_queue()
 
     def create_connection(self):
