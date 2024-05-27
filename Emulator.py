@@ -213,12 +213,7 @@ def add_imei(imei):
         imeis.append(imei)
         threads[imei].start()
         config.logger.info(f'Started thread {imei} with seconds interval')
-        # thread.join()
-        # config.logger.info(f'Finished thread {imei}')
-        # try:
-        #     imeis.remove(imei)
-        # except:
-        #     pass
+
 
 def queues_list():
     defprx = socks.get_default_proxy()
@@ -248,6 +243,7 @@ def check_threads():
 
 if __name__ == '__main__':
     while True:
+        time.sleep(1)
         qs = queues_list()
         check_threads()
         for q in qs:
