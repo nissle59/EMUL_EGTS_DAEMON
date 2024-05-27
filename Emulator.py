@@ -243,7 +243,7 @@ def check_threads():
 
 if __name__ == '__main__':
     while True:
-        time.sleep(1)
+        time.sleep(3)
         qs = queues_list()
         check_threads()
         for q in qs:
