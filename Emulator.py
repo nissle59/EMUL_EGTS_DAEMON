@@ -174,8 +174,11 @@ class Emulator:
     def consume_messages(self):
         while True:
             try:
+                defprx = socks.get_default_proxy()
+                socks.setdefaultproxy(None)
                 self.mq_connection = self.create_connection()
                 self.mq_channel = self.create_channel(self.mq_connection)
+                socks.setdefaultproxy(defprx)
                 self.start_consuming(self.mq_channel)
             except AMQPConnectionError as e:
                 # Можно реализовать здесь вашу логику логирования или отчетности
