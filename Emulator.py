@@ -31,6 +31,7 @@ class Emulator:
         self.s_addr = 'data.rnis.mos.ru'  # отправка в РНИС
         self.s_port = 4444  # отправка в РНИС
         self.imei = imei
+        self.tid = None
         self.mq_connection = None
         config.logger.info(f"IMEI Length: {len(self.imei)}")
         #self.mq_channel.queue_declare(queue=str(imei), auto_delete=True)
@@ -143,6 +144,7 @@ class Emulator:
         msg = int(0).to_bytes(64, byteorder='little')
         if body != msg:
             m = model.Point.from_b64(body)
+            self.tid = m.tid
             self.send(m.to_egts_packet(self.imei))
         else:
             config.logger.info("!!!!!!!!!! EOF !!!!!!!!!!")
@@ -185,6 +187,9 @@ class Emulator:
                         self.mq_connection.close()
 
     def stop_queue(self):
+        r = requests.get(
+            f"http://api-external.tm.8525.ru/rnis/emulationCompleted?token=5jossnicxhn75lht7aimal7r2ocvg6o7&taskId={self.tid}&imei={self.imei}",
+            verify=False)
         self.mq_channel.stop_consuming(consumer_tag='EMUL_EGTS_DAEMON')
         self.mq_channel.basic_cancel(consumer_tag='EMUL_EGTS_DAEMON')
         self.mq_channel.queue_delete(queue=self.imei)
