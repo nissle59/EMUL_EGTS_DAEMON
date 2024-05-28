@@ -190,6 +190,8 @@ class Emulator:
                         self.mq_connection.close()
 
     def stop_queue(self):
+        defprx = socks.get_default_proxy()
+        socks.setdefaultproxy(None)
         r = requests.get(
             f"http://api-external.tm.8525.ru/rnis/emulationCompleted?token=5jossnicxhn75lht7aimal7r2ocvg6o7&taskId={self.tid}&imei={self.imei}",
             verify=False)
@@ -208,6 +210,7 @@ class Emulator:
             imeis.remove(self.imei)
         except:
             pass
+        socks.setdefaultproxy(defprx)
 
 
 def process_thread(imei):
