@@ -127,7 +127,7 @@ class Emulator:
                         self.socket_connect()
                         self.sock.sendall(msg_b)  # sends a message to the server
                 recv_b = self.sock.recv(256)
-                config.logger.info('{} >> {}'.format(self.s_addr, f'Data received!'))
+                #config.logger.info('{} >> {}'.format(self.s_addr, f'Data received!'))
             # if list_len == 1:
             #     time.sleep(1)
         except Exception as e:
@@ -138,7 +138,7 @@ class Emulator:
         # self.i += 1
 
     def callback(self, ch, method, properties, body):
-        config.logger.info(f" [x] Received {body}")
+        #config.logger.info(f" [x] Received {body}")
         #p = model.Point.from_json_b(body)
         #msg = b'0000000000000000000000000000000000000000000000000000000000000000'
         msg = int(0).to_bytes(64, byteorder='little')
