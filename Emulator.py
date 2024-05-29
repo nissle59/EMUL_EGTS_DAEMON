@@ -198,7 +198,7 @@ class Emulator:
         self.mq_channel.stop_consuming(consumer_tag='EMUL_EGTS_DAEMON')
         self.mq_channel.basic_cancel(consumer_tag='EMUL_EGTS_DAEMON')
         try:
-            self.mq_channel.queue_delete(queue=self.imei)
+            self.mq_channel.queue_delete(queue=f"{self.imei}_base")
         except:
             pass
         try:
