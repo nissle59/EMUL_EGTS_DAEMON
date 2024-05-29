@@ -97,7 +97,7 @@ class EGTStrack(object):
         self._imei = str(self._tid)
         while len(self._imei) < 15:
             self._imei = '0' + self._imei
-        config.logger.info(f"ID: {self._tid}, IMEI: {deviceimei}, IMEI_CROP: {self._imei}")
+        #config.logger.info(f"ID: {self._tid}, IMEI: {deviceimei}, IMEI_CROP: {self._imei}")
         self._pt = b'\x01'  # Ид пакета # EGTSAppdata
         self._hcs = b'\x00'  # header conlrol sum size = 1 Byte
         self._sfrcs = 0  # service force control sum
