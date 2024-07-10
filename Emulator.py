@@ -117,7 +117,7 @@ class Emulator:
                     self.sock.sendall(msg_b)  # sends a message to the server
                     config.logger.info('{} : {} >> {}'.format(self.imei[-8:],self.imei,f'Data sent OK!'))
                 except Exception as e:
-                    '{} : {} >> {}'.format(self.imei[-8:], self.imei, f'### Data sent ERROR'
+                    config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'### Data sent ERROR'))
                     if e.errno in [errno.EPIPE, errno.EBADF]:
                         # Обработка ошибки 'Broken pipe'
                         config.logger.info('Broken pipe or bad file error detected.')
