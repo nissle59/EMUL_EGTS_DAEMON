@@ -108,14 +108,16 @@ class Emulator:
         message_b = point
         self.to_send.append(message_b)
         #config.logger.info(f"Angle: {point.angle} now: long[{point.longitude}] lat[{point.latitude}]")
-        config.logger.info('{} : {} >> {}'.format(self.imei[-8:],self.imei,f'Data sent OK!'))
+        #config.logger.info('{} : {} >> {}'.format(self.imei[-8:],self.imei,f'Data sent OK!'))
         try:
             list_len = len(self.to_send)
             for k in range(list_len):
                 msg_b = self.to_send.pop(0)
                 try:
                     self.sock.sendall(msg_b)  # sends a message to the server
+                    config.logger.info('{} : {} >> {}'.format(self.imei[-8:],self.imei,f'Data sent OK!'))
                 except Exception as e:
+                    '{} : {} >> {}'.format(self.imei[-8:], self.imei, f'### Data sent ERROR'
                     if e.errno in [errno.EPIPE, errno.EBADF]:
                         # Обработка ошибки 'Broken pipe'
                         config.logger.info('Broken pipe or bad file error detected.')
