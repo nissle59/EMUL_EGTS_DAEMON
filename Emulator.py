@@ -115,7 +115,7 @@ class Emulator:
                 msg_b = self.to_send.pop(0)
                 try:
                     self.sock.sendall(msg_b)  # sends a message to the server
-                    config.logger.info('{} : {} >> {}'.format(self.imei[-8:],self.imei,f'Data sent OK!'))
+                    config.logger.info('{} : {} >> {}'.format(self.imei[-8:],self.imei,f'Data sent OK!',str(msg_b)))
                 except Exception as e:
                     config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'### Data sent ERROR'))
                     if e.errno in [errno.EPIPE, errno.EBADF]:
