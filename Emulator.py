@@ -33,8 +33,8 @@ def generate_imsi(imei):
     # MSIN (Mobile Subscriber Identification Number) - случайные оставшиеся 11 цифр
     msin = imei[-11:]
     imsi = mcc + mnc + msin
-    #return imsi
-    return '1111111111111111'
+    return imsi
+    #return '1111111111111111'
 
 
 def generate_msisdn(imei):
@@ -45,8 +45,8 @@ def generate_msisdn(imei):
     # Subscriber Number - случайные оставшиеся цифры до нужной длины (8)
     subscriber_number = imei[-11:]
     msisdn = country_code + ndc + subscriber_number
-    #return msisdn
-    return '111111111111111'
+    return msisdn
+    #return '111111111111111'
 
 
 class Emulator:
