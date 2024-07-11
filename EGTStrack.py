@@ -95,7 +95,7 @@ class EGTStrack(object):
         self._imei = str(deviceimei)
         self._tid = int(str(self._imei)[-8:])
         #self._tid = int(str(self._imei)[-8:])
-        #self._imei = str(self._tid)
+        self._imei = str(self._tid)
         while len(self._imei) < 15:
             self._imei = '0' + self._imei
         #config.logger.info(f"ID: {self._tid}, IMEI: {deviceimei}, IMEI_CROP: {self._imei}")
