@@ -95,8 +95,8 @@ def generate_imsi(imei):
     mcc = imei[:3]
     # MNC (Mobile Network Code) - используем следующие 2 цифры IMEI
     mnc = imei[3:5]
-    # MSIN (Mobile Subscriber Identification Number) - случайные оставшиеся 10 цифр
-    msin = ''.join([str(random.randint(0, 9)) for _ in range(10)])
+    # MSIN (Mobile Subscriber Identification Number) - случайные оставшиеся 11 цифр
+    msin = imei[-11:]
     imsi = mcc + mnc + msin
     return imsi
 
@@ -105,8 +105,8 @@ def generate_msisdn(imei):
     country_code = imei[:2]
     # National Destination Code (NDC) - используем следующие 2 цифры IMEI
     ndc = imei[2:4]
-    # Subscriber Number - случайные оставшиеся цифры до нужной длины
-    subscriber_number = ''.join([str(random.randint(0, 9)) for _ in range(8)])
+    # Subscriber Number - случайные оставшиеся цифры до нужной длины (8)
+    subscriber_number = imei[-11:]
     msisdn = country_code + ndc + subscriber_number
     return msisdn
 
@@ -119,7 +119,7 @@ class EGTStrack(object):
         self._imei = str(deviceimei)
         self._tid = int(str(self._imei)[-8:])
         #self._tid = int(str(self._imei)[-8:])
-        self._imei = str(self._tid)
+        #self._imei = str(self._tid)
         while len(self._imei) < 15:
             self._imei = '0' + self._imei
         config.logger.info(f"ID: {self._tid}, IMEI: {deviceimei}, IMEI_CROP: {self._imei}, IMSI: {self.imsi}, MSISDN: {self.msisdn}")
