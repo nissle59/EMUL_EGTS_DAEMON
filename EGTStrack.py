@@ -241,6 +241,7 @@ class EGTStrack(object):
             rl = len(_service).to_bytes(2, byteorder='little')
 
             headService = rl + rn + rfl + _oid + tm + sst + rst
+            config.logger.info(f"IMEI: {self._imei}, IMSI: {self.imsi}, MSISDN: {self.msisdn}")
         elif record_types == 4:  # GTS_SR_AUTH_SERV_IDENTITY	4	/* Not described in protocol docs*/
             self._pt = b'\x01'  # Ид пакета # EGTSAppdata
             recLen = b''  # 2 bytes

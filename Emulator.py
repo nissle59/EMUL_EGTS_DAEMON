@@ -1,6 +1,7 @@
 import errno
 import json
 import socket
+import sys
 import time
 from itertools import cycle
 
@@ -32,7 +33,8 @@ def generate_imsi(imei):
     # MSIN (Mobile Subscriber Identification Number) - случайные оставшиеся 11 цифр
     msin = imei[-11:]
     imsi = mcc + mnc + msin
-    return imsi
+    #return imsi
+    return '1111111111111111'
 
 
 def generate_msisdn(imei):
@@ -43,7 +45,8 @@ def generate_msisdn(imei):
     # Subscriber Number - случайные оставшиеся цифры до нужной длины (8)
     subscriber_number = imei[-11:]
     msisdn = country_code + ndc + subscriber_number
-    return msisdn
+    #return msisdn
+    return '111111111111111'
 
 
 class Emulator:
@@ -96,6 +99,7 @@ class Emulator:
                         time.sleep(1)
                         self.socket_connect()
                         self.sock.sendall(message_b)
+                #sys.exit(0)
                 break
             except Exception as e:
                 config.logger.info(e)
@@ -179,12 +183,12 @@ class Emulator:
         if body != msg:
             m = model.Point.from_b64(body)
             self.tid = m.tid
-            self.egts_instance.add_service(1)
-            message_b = self.egts_instance.new_message()
-            config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
-            self.sock.sendall(message_b)  # sends a message to the server
-            recv_b = self.sock.recv(256)  #
-            config.logger.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
+            # self.egts_instance.add_service(1)
+            # message_b = self.egts_instance.new_message()
+            # config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
+            # self.sock.sendall(message_b)  # sends a message to the server
+            # recv_b = self.sock.recv(256)  #
+            # config.logger.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
             self.send(m.to_egts_packet(self.egts_instance ,self.imei, self.imsi, self.msisdn))
         else:
             config.logger.info("!!!!!!!!!! EOF !!!!!!!!!!")
