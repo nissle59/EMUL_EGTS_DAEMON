@@ -290,6 +290,11 @@ def queues_list():
     return queues
 
 def check_threads():
+    for imei in imeis:
+        if not threads.get(imei, None):
+            threads[imei] = threading.Thread(target=process_thread, args=(imei,), daemon=True)
+            threads[imei].start()
+            config.logger.info(f'Started thread {imei} with seconds interval')
     for thread in threads:
         if not(threads[thread].is_alive()):
             config.logger.info(f'Finished thread {thread}')
