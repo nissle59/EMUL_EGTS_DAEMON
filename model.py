@@ -48,8 +48,8 @@ class Point(BaseModel):
         obj = pickle.loads(b_code)
         return obj
 
-    def to_egts_packet(self, imei, imsi, msisdn, offset=None):
-        egts_instance = EGTStrack(deviceimei=imei, imsi=imsi, msisdn=msisdn)
+    def to_egts_packet(self, egts_instance: EGTStrack, imei, imsi, msisdn, offset=None):
+        #egts_instance = EGTStrack(deviceimei=imei, imsi=imsi, msisdn=msisdn)
         egts_instance.add_service(16,
                                   long=self.longitude,
                                   lat=self.latitude,

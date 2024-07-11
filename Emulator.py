@@ -179,7 +179,13 @@ class Emulator:
         if body != msg:
             m = model.Point.from_b64(body)
             self.tid = m.tid
-            self.send(m.to_egts_packet(self.imei, self.imsi, self.msisdn))
+            self.egts_instance.add_service(1)
+            message_b = self.egts_instance.new_message()
+            config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
+            self.sock.sendall(message_b)  # sends a message to the server
+            recv_b = self.sock.recv(256)  #
+            config.logger.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
+            self.send(m.to_egts_packet(self.egts_instance ,self.imei, self.imsi, self.msisdn))
         else:
             config.logger.info("!!!!!!!!!! EOF !!!!!!!!!!")
             self.stop_queue()
