@@ -138,7 +138,7 @@ class Emulator:
                         time.sleep(1)
                         self.socket_connect()
                         self.sock.sendall(msg_b)  # sends a message to the server
-                recv_b = self.sock.recv(256)
+                #recv_b = self.sock.recv(256)
                 #config.logger.info('{} >> {}'.format(self.s_addr, f'Data received!'))
             # if list_len == 1:
             #     time.sleep(1)
