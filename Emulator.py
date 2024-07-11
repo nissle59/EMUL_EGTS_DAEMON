@@ -300,6 +300,7 @@ def check_threads():
 
 if __name__ == '__main__':
     while True:
+        config.logger.info('------------------------------------\n  Scanning Threads...\n------------------------------------')
         time.sleep(3)
         qs = queues_list()
         check_threads()
