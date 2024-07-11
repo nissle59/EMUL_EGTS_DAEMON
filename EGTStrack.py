@@ -90,32 +90,13 @@ CRC16_TABLE = (
 def bitstring_to_bytes(s, byteorder):
     return int(s, 2).to_bytes((len(s) + 7) // 8, byteorder=byteorder)
 
-def generate_imsi(imei):
-    # MCC (Mobile Country Code) - используем первые 3 цифры IMEI
-    mcc = imei[:3]
-    # MNC (Mobile Network Code) - используем следующие 2 цифры IMEI
-    mnc = imei[3:5]
-    # MSIN (Mobile Subscriber Identification Number) - случайные оставшиеся 11 цифр
-    msin = imei[-11:]
-    imsi = mcc + mnc + msin
-    return imsi
-
-def generate_msisdn(imei):
-    # Country Code - используем первые 2 цифры IMEI
-    country_code = imei[:2]
-    # National Destination Code (NDC) - используем следующие 2 цифры IMEI
-    ndc = imei[2:4]
-    # Subscriber Number - случайные оставшиеся цифры до нужной длины (8)
-    subscriber_number = imei[-11:]
-    msisdn = country_code + ndc + subscriber_number
-    return msisdn
 
 
 class EGTStrack(object):
     #def __init__(self, deviceid, deviceimei=None):
     def __init__(self, deviceimei, imsi, msisdn):
-        self.imsi = generate_imsi(deviceimei)
-        self.msisdn = generate_msisdn(deviceimei)
+        self.imsi = imsi
+        self.msisdn = msisdn
         self._imei = str(deviceimei)
         self._tid = int(str(self._imei)[-8:])
         #self._tid = int(str(self._imei)[-8:])

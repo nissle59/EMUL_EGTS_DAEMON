@@ -24,6 +24,28 @@ r_proxies = cycle(proxies)
 # from ApiService import ApiService as API
 
 
+def generate_imsi(imei):
+    # MCC (Mobile Country Code) - используем первые 3 цифры IMEI
+    mcc = imei[:3]
+    # MNC (Mobile Network Code) - используем следующие 2 цифры IMEI
+    mnc = imei[3:5]
+    # MSIN (Mobile Subscriber Identification Number) - случайные оставшиеся 11 цифр
+    msin = imei[-11:]
+    imsi = mcc + mnc + msin
+    return imsi
+
+
+def generate_msisdn(imei):
+    # Country Code - используем первые 2 цифры IMEI
+    country_code = imei[:2]
+    # National Destination Code (NDC) - используем следующие 2 цифры IMEI
+    ndc = imei[2:4]
+    # Subscriber Number - случайные оставшиеся цифры до нужной длины (8)
+    subscriber_number = imei[-11:]
+    msisdn = country_code + ndc + subscriber_number
+    return msisdn
+
+
 class Emulator:
     def __init__(self, imei):
         # self.s_addr = '46.50.138.139'    # отправка в Форт
@@ -33,8 +55,8 @@ class Emulator:
         # self.s_addr = '127.0.0.1'
         # self.s_port = 7777
         self.imei = imei
-        self.imsi = str(imei) + '1'
-        self.msisdn = str(imei)
+        self.imsi = generate_imsi(imei)
+        self.msisdn = generate_msisdn(imei)
         self.tid = None
         self.mq_connection = None
         config.logger.info(f"IMEI Length: {len(self.imei)}")

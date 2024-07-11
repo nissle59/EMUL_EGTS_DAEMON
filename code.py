@@ -25,21 +25,21 @@ while True:
         print('SRV >> "{}"'.format(recv_b.hex()))
 
         i = 0
-        for coord in coords:
-            egts_instance.add_service(16,
-                                      long=coord['longitude'],
-                                      lat=coord['latitude'],
-                                      speed=coord['speed'],
-                                      angle=coord['angle']
-                                      )
-            message_b = egts_instance.new_message()
-            print(f"Angle: {coord['angle']} now: long[{coord['longitude']}] lat[{coord['latitude']}, next: long[{coord.get('next_coord',{}).get('longitude', None)}] lat[{coord.get('next_coord',{}).get('latitude', None)}]")
-            print('CLT >> "{}"'.format(message_b.hex()))
-            sock.sendall(message_b)
-            recv_b = sock.recv(256)
-            print('SRV >> "{}"'.format(recv_b.hex()))
-            time.sleep(1)
-            i += 1
+        # for coord in coords:
+        #     egts_instance.add_service(16,
+        #                               long=coord['longitude'],
+        #                               lat=coord['latitude'],
+        #                               speed=coord['speed'],
+        #                               angle=coord['angle']
+        #                               )
+        #     message_b = egts_instance.new_message()
+        #     print(f"Angle: {coord['angle']} now: long[{coord['longitude']}] lat[{coord['latitude']}, next: long[{coord.get('next_coord',{}).get('longitude', None)}] lat[{coord.get('next_coord',{}).get('latitude', None)}]")
+        #     print('CLT >> "{}"'.format(message_b.hex()))
+        #     sock.sendall(message_b)
+        #     recv_b = sock.recv(256)
+        #     print('SRV >> "{}"'.format(recv_b.hex()))
+        #     time.sleep(1)
+        #     i += 1
 
         sock.close()
 
