@@ -1,4 +1,6 @@
 import datetime
+import random
+
 import config
 
 dt_offset = 1262293200
@@ -88,10 +90,32 @@ CRC16_TABLE = (
 def bitstring_to_bytes(s, byteorder):
     return int(s, 2).to_bytes((len(s) + 7) // 8, byteorder=byteorder)
 
+def generate_imsi(imei):
+    # MCC (Mobile Country Code) - используем первые 3 цифры IMEI
+    mcc = imei[:3]
+    # MNC (Mobile Network Code) - используем следующие 2 цифры IMEI
+    mnc = imei[3:5]
+    # MSIN (Mobile Subscriber Identification Number) - случайные оставшиеся 10 цифр
+    msin = ''.join([str(random.randint(0, 9)) for _ in range(10)])
+    imsi = mcc + mnc + msin
+    return imsi
+
+def generate_msisdn(imei):
+    # Country Code - используем первые 2 цифры IMEI
+    country_code = imei[:2]
+    # National Destination Code (NDC) - используем следующие 2 цифры IMEI
+    ndc = imei[2:4]
+    # Subscriber Number - случайные оставшиеся цифры до нужной длины
+    subscriber_number = ''.join([str(random.randint(0, 9)) for _ in range(8)])
+    msisdn = country_code + ndc + subscriber_number
+    return msisdn
+
 
 class EGTStrack(object):
     #def __init__(self, deviceid, deviceimei=None):
-    def __init__(self, deviceimei):
+    def __init__(self, deviceimei, imsi, msisdn):
+        self.imsi = generate_imsi(deviceimei)
+        self.msisdn = generate_msisdn(deviceimei)
         self._imei = str(deviceimei)
         self._tid = int(str(self._imei)[-8:])
         #self._tid = int(str(self._imei)[-8:])
@@ -147,9 +171,11 @@ class EGTStrack(object):
             mservice += self._tid.to_bytes(4, byteorder='little')
             mservice += b'\x9e'
             mservice += self._imei.encode('utf-8')
-            mservice += '0000000000000000'.encode('utf-8')  # IMSI
+            # mservice += '0000000000000000'.encode('utf-8')  # IMSI
+            mservice += self.imsi.encode('utf-8')  # IMSI
             mservice += 'rus'.encode('utf-8')
-            mservice += '000000000000000'.encode('utf-8')  # MSISDN
+            # mservice += '000000000000000'.encode('utf-8')  # MSISDN
+            mservice += self.msisdn.encode('utf-8')  # MSISDN
             srl = len(mservice).to_bytes(2, byteorder='little')
             _service = srt + srl + mservice
             rl = len(_service).to_bytes(2, byteorder='little')  # record length

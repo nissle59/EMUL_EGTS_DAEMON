@@ -30,7 +30,11 @@ class Emulator:
         # self.s_port = 65521              # отправка в Форт
         self.s_addr = 'data.rnis.mos.ru'  # отправка в РНИС
         self.s_port = 4444  # отправка в РНИС
+        # self.s_addr = '127.0.0.1'
+        # self.s_port = 7777
         self.imei = imei
+        self.imsi = str(imei) + '1'
+        self.msisdn = str(imei)
         self.tid = None
         self.mq_connection = None
         config.logger.info(f"IMEI Length: {len(self.imei)}")
@@ -48,7 +52,7 @@ class Emulator:
                 socket.socket = socks.socksocket
                 self.sock = socket.socket()
                 self.sock.connect((self.s_addr, self.s_port))
-                self.egts_instance = E(deviceimei=self.imei)
+                self.egts_instance = E(deviceimei=self.imei, imsi=self.imsi, msisdn=self.msisdn)
                 message_b = self.egts_instance.new_message()  # get message
 
                 config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
@@ -116,11 +120,11 @@ class Emulator:
                 try:
                     self.sock.sendall(msg_b)  # sends a message to the server
                     config.logger.info('{} : {} >> {} -- ({})'.format(self.imei[-8:],self.imei,f'Data sent OK!', str(msg_b.hex())))
-                    # try:
-                    #     resp = self.sock.recv(256)
-                    #     config.logger.info('{} : {} >> {} -- ({})'.format(self.imei[-8:], self.imei, f'Data recved', str(resp.hex())))
-                    # except:
-                    #     config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'Data NOT recved'))
+                    try:
+                        resp = self.sock.recv(256)
+                        config.logger.info('{} : {} >> {} -- ({})'.format(self.imei[-8:], self.imei, f'Data recved', str(resp.hex())))
+                    except:
+                        config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'Data NOT recved'))
 
                 except Exception as e:
                     config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'### Data sent ERROR'))
@@ -153,7 +157,7 @@ class Emulator:
         if body != msg:
             m = model.Point.from_b64(body)
             self.tid = m.tid
-            self.send(m.to_egts_packet(self.imei))
+            self.send(m.to_egts_packet(self.imei, self.imsi, self.msisdn))
         else:
             config.logger.info("!!!!!!!!!! EOF !!!!!!!!!!")
             self.stop_queue()
