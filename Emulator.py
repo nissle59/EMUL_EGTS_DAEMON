@@ -116,11 +116,11 @@ class Emulator:
                 try:
                     self.sock.sendall(msg_b)  # sends a message to the server
                     config.logger.info('{} : {} >> {} -- ({})'.format(self.imei[-8:],self.imei,f'Data sent OK!', str(msg_b.hex())))
-                    try:
-                        resp = self.sock.recv(256)
-                        config.logger.info('{} : {} >> {} -- ({})'.format(self.imei[-8:], self.imei, f'Data recved', str(resp.hex())))
-                    except:
-                        config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'Data NOT recved'))
+                    # try:
+                    #     resp = self.sock.recv(256)
+                    #     config.logger.info('{} : {} >> {} -- ({})'.format(self.imei[-8:], self.imei, f'Data recved', str(resp.hex())))
+                    # except:
+                    #     config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'Data NOT recved'))
 
                 except Exception as e:
                     config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'### Data sent ERROR'))
