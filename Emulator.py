@@ -44,8 +44,8 @@ class Emulator:
         while True:
             try:
                 prx = next(r_proxies)
-                socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, prx['ip'], int(prx['port']), True, prx['username'], prx['password'])
-                socket.socket = socks.socksocket
+                #socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, prx['ip'], int(prx['port']), True, prx['username'], prx['password'])
+                #socket.socket = socks.socksocket
                 self.sock = socket.socket()
                 self.sock.connect((self.s_addr, self.s_port))
                 self.egts_instance = E(deviceimei=self.imei)

@@ -3,8 +3,8 @@ import sys
 
 
 class MQ:
-    host = 'rmq.local'
-    #host = '10.8.0.5'
+    #host = 'rmq.local'
+    host = '10.8.0.5'
     user = 'rmuser'
     password = 'rmpassword'
     port = 5672
