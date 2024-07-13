@@ -3,6 +3,7 @@ import json
 import socket
 import sys
 import time
+import traceback
 from itertools import cycle
 
 import pika
@@ -285,15 +286,21 @@ def queues_list():
         if item.get('vhost', None) == MQ.vhost:
             name = item.get('name')
             try:
-                imei = int(name)
+                try:
+                    imei = int(name)
+                except:
+                    pass
                 if f"{imei}_base" in q_list:
                     queues.append(int(name))
                 else:
-                    defprx = socks.get_default_proxy()
-                    socks.setdefaultproxy(None)
-                    r = requests.delete(f"http://{MQ.host}:{MQ.apiport}/api/queues/{MQ.vhost}/{imei}", auth=(MQ.user, MQ.password),
-                                     verify=False, proxies=None)
-                    socks.setdefaultproxy(defprx)
+                    try:
+                        defprx = socks.get_default_proxy()
+                        socks.setdefaultproxy(None)
+                        r = requests.delete(f"http://{MQ.host}:{MQ.apiport}/api/queues/{MQ.vhost}/{imei}", auth=(MQ.user, MQ.password),
+                                         verify=False, proxies=None)
+                        socks.setdefaultproxy(defprx)
+                    except Exception as e:
+                        traceback.print_exc()
             except:
                 pass
     queues = list(set(queues))
