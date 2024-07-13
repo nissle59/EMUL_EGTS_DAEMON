@@ -280,11 +280,17 @@ def queues_list():
     js = r.json()
     #config.logger.info(js)
     queues = []
+    q_list = [item.get('name', '') for item in js]
     for item in js:
         if item.get('vhost', None) == MQ.vhost:
             name = item.get('name')
             try:
-                queues.append(int(name))
+                imei = int(name)
+                if f"{imei}_base" in q_list:
+                    queues.append(int(name))
+                else:
+                    r = requests.delete(f"http://{MQ.host}:{MQ.apiport}/api/queues/{MQ.vhost}/{imei}", auth=(MQ.user, MQ.password),
+                                     verify=False, proxies=None)
             except:
                 pass
     return queues
