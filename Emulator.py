@@ -289,13 +289,17 @@ def queues_list():
                 if f"{imei}_base" in q_list:
                     queues.append(int(name))
                 else:
+                    defprx = socks.get_default_proxy()
+                    socks.setdefaultproxy(None)
                     r = requests.delete(f"http://{MQ.host}:{MQ.apiport}/api/queues/{MQ.vhost}/{imei}", auth=(MQ.user, MQ.password),
                                      verify=False, proxies=None)
+                    socks.setdefaultproxy(defprx)
             except:
                 pass
+    queues = list(set(queues))
     return queues
 
-def check_threads():
+def check_threads(queues):
     for imei in imeis:
         if not threads.get(imei, None):
             threads[imei] = threading.Thread(target=process_thread, args=(imei,), daemon=True)
@@ -314,7 +318,7 @@ if __name__ == '__main__':
         config.logger.info('------------------------------------\n  Scanning Threads...\n------------------------------------')
         time.sleep(3)
         qs = queues_list()
-        check_threads()
+        check_threads(qs)
         for q in qs:
             if q not in imeis:
                 add_imei(str(q))
