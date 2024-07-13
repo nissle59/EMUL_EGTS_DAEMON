@@ -1,5 +1,5 @@
 # Базовый образ Python 3.10
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 # Обновляем пакеты и устанавливаем необходимые зависимости
 #RUN apt-get update && \
