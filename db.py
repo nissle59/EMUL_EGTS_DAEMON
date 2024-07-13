@@ -63,8 +63,8 @@ def get_proxy(proxy_id):
     px = cur.fetchone()
     #config.logger.debug(px)
     if px:
-        http_str = f'http://{px.get("username",'')}:{px.get("password",'')}@{px.get("ip",'')}:{px.get("port",'')}'
-        https_str = f'http://{px.get("username", '')}:{px.get("password", '')}@{px.get("ip", '')}:{px.get("port", '')}'
+        http_str = f'http://{px.get("username","")}:{px.get("password","")}@{px.get("ip","")}:{px.get("port","")}'
+        https_str = f'http://{px.get("username", "")}:{px.get("password", "")}@{px.get("ip", "")}:{px.get("port", "")}'
         proxy = {
             'http': http_str,
             'https': https_str
