@@ -64,7 +64,7 @@ def get_proxy(proxy_id):
     q = "SELECT * FROM public.proxies WHERE proxy_id = %(pid)s"
     cur.execute(q, {'pid': proxy_id})
     px = cur.fetchone()
-    LOGGER.debug(px, config.name)
+    LOGGER.debug("%s: " + px, config.name)
     if px:
         http_str = f'http://{px.get("username","")}:{px.get("password","")}@{px.get("ip","")}:{px.get("port","")}'
         https_str = f'http://{px.get("username", "")}:{px.get("password", "")}@{px.get("ip", "")}:{px.get("port", "")}'
@@ -72,7 +72,7 @@ def get_proxy(proxy_id):
             'http': http_str,
             'https': https_str
         }
-        LOGGER.debug(proxy, config.name)
+        LOGGER.debug("%s: " + proxy, config.name)
         return proxy
     else:
         return None
