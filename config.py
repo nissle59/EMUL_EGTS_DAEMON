@@ -2,6 +2,9 @@ import json
 import logging
 import logging.config
 import sys
+
+name = "EGTS Emulator (Virtual GPS Devices)"
+
 logging.config.dictConfig(json.load(open('logging.json','r')))
 LOGGER = logging.getLogger(__name__)
 
