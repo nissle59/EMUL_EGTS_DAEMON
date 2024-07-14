@@ -3,6 +3,8 @@ import json
 import pickle
 from EGTStrack import EGTStrack
 from pydantic import BaseModel
+import logging
+LOGGER = logging.getLogger(__name__)
 
 
 class Point(BaseModel):
@@ -18,9 +20,11 @@ class Point(BaseModel):
     regnumber: str | None = None
 
     def to_json(self):
+        LOGGER = logging.getLogger(__name__ + ".Point--to_json")
         return json.dumps(self.to_dict())
 
     def to_dict(self):
+        LOGGER = logging.getLogger(__name__ + ".Point--to_dict")
         d = {
             "coordinatesId": self.coordinatesId,
             "tid": self.tid,
@@ -39,6 +43,7 @@ class Point(BaseModel):
         return d
 
     def to_b64(self):
+        LOGGER = logging.getLogger(__name__ + ".Point--to_b64")
         b_code = pickle.dumps(self)
         base64_bytes = base64.b64encode(b_code)
         base64_string = base64_bytes.decode('utf-8')
@@ -46,6 +51,7 @@ class Point(BaseModel):
 
     @classmethod
     def from_b64(cls, b64_string):
+        LOGGER = logging.getLogger(__name__ + ".Point--from_b64")
         if isinstance(b64_string, str):
             base64_bytes = b64_string.encode('utf-8')
         else:
@@ -55,6 +61,7 @@ class Point(BaseModel):
         return obj
 
     def to_egts_packet(self, egts_instance: EGTStrack, imei, imsi, msisdn, offset=None):
+        LOGGER = logging.getLogger(__name__ + ".Point--to_egts_packet")
         #egts_instance = EGTStrack(deviceimei=imei, imsi=imsi, msisdn=msisdn)
         egts_instance.add_service(16,
                                   long=self.longitude,
@@ -69,10 +76,12 @@ class Point(BaseModel):
 
     @staticmethod
     def from_json_b(json_bstr):
+        LOGGER = logging.getLogger(__name__ + ".Point--from_json_b")
         s = json.loads(json_bstr.decode('utf-8'))
         return Point(**s)
 
     def __repr__(self):
+        LOGGER = logging.getLogger(__name__ + ".Point--repr")
         return f"Point(speed {self.speed}, angle {self.angle}, lat[{self.latitude}] long[{self.longitude}])"
 
 
@@ -91,4 +100,5 @@ class Route(BaseModel):
     error: str | None = None
 
     def __repr__(self):
+        LOGGER = logging.getLogger(__name__ + ".Route--repr")
         return json.dumps({ 'ok': self.ok, 'results': self.results, 'error': self.error })

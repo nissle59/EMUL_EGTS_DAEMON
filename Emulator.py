@@ -5,7 +5,7 @@ import sys
 import time
 import traceback
 from itertools import cycle
-
+import logging
 import pika
 import requests
 from pika.exceptions import AMQPConnectionError
@@ -18,7 +18,7 @@ import model
 from EGTStrack import EGTStrack as E
 import config
 from config import MQ
-
+LOGGER = logging.getLogger(__name__)
 imeis = []
 
 proxies = db.get_active_proxies()
@@ -27,6 +27,7 @@ r_proxies = cycle(proxies)
 
 
 def generate_imsi(imei):
+    LOGGER = logging.getLogger(__name__ + ".generate_imsi")
     # MCC (Mobile Country Code) - используем первые 3 цифры IMEI
     mcc = imei[:3]
     # MNC (Mobile Network Code) - используем следующие 2 цифры IMEI
@@ -39,6 +40,7 @@ def generate_imsi(imei):
 
 
 def generate_msisdn(imei):
+    LOGGER = logging.getLogger(__name__ + ".generate_msisdn")
     # Country Code - используем первые 2 цифры IMEI
     country_code = imei[:2]
     # National Destination Code (NDC) - используем следующие 2 цифры IMEI
@@ -52,6 +54,7 @@ def generate_msisdn(imei):
 
 class Emulator:
     def __init__(self, imei):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--init")
         # self.s_addr = '46.50.138.139'    # отправка в Форт
         # self.s_port = 65521              # отправка в Форт
         self.s_addr = 'data.rnis.mos.ru'  # отправка в РНИС
@@ -63,7 +66,7 @@ class Emulator:
         self.msisdn = generate_msisdn(imei)
         self.tid = None
         self.mq_connection = None
-        config.logger.info(f"IMEI Length: {len(self.imei)}")
+        LOGGER.info(f"IMEI Length: {len(self.imei)}")
         #self.mq_channel.queue_declare(queue=str(imei), auto_delete=True)
 
         self.socket_connect()
@@ -71,6 +74,7 @@ class Emulator:
 
 
     def socket_connect(self):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--socket_connect")
         while True:
             try:
                 prx = next(r_proxies)
@@ -81,17 +85,17 @@ class Emulator:
                 self.egts_instance = E(deviceimei=self.imei, imsi=self.imsi, msisdn=self.msisdn)
                 message_b = self.egts_instance.new_message()  # get message
 
-                config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
+                LOGGER.info('{} >> {}'.format(self.imei, message_b.hex()))
                 try:
                     self.sock.sendall(message_b)  # sends a message to the server
                     recv_b = self.sock.recv(256)  #
-                    config.logger.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
+                    LOGGER.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
                     # self.i = 0
                     self.to_send = []
                 except IOError as e:
                     if e.errno in [errno.EPIPE, errno.EBADF]:
                         # Обработка ошибки 'Broken pipe'
-                        config.logger.info('Broken pipe or bad file decr error detected.')
+                        LOGGER.info('Broken pipe or bad file decr error detected.')
                         # Тут можно закрыть сокет и попытаться восстановить соединение
                         try:
                             self.sock.close()
@@ -103,28 +107,33 @@ class Emulator:
                 #sys.exit(0)
                 break
             except Exception as e:
-                config.logger.info(e)
+                LOGGER.info(e)
                 time.sleep(1)
 
 
     def start(self):
-        config.logger.info(' [*] Waiting for messages. To exit press CTRL+C')
+        LOGGER = logging.getLogger(__name__ + ".Emulator--start")
+        LOGGER.info(' [*] Waiting for messages. To exit press CTRL+C')
         self.consume_messages()
 
 
     def pause(self):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--pause")
         pass
 
     def stop(self):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--stop")
         try:
             self.sock.close()
         except Exception as e:
-            config.logger.info(e)
+            LOGGER.info(e)
 
     def clear(self):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--clear")
         pass
 
     def prepare_message(self, point: model.Point):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--prepare_message")
         self.egts_instance.add_service(16,
                                        long=point.longitude,
                                        lat=point.latitude,
@@ -135,29 +144,30 @@ class Emulator:
         return message_b
 
     def send(self, point):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--send")
         #message_b = self.prepare_message(point)
         message_b = point
         self.to_send.append(message_b)
-        #config.logger.info(f"Angle: {point.angle} now: long[{point.longitude}] lat[{point.latitude}]")
-        #config.logger.info('{} : {} >> {}'.format(self.imei[-8:],self.imei,f'Data sent OK!'))
+        #LOGGER.info(f"Angle: {point.angle} now: long[{point.longitude}] lat[{point.latitude}]")
+        #LOGGER.info('{} : {} >> {}'.format(self.imei[-8:],self.imei,f'Data sent OK!'))
         try:
             list_len = len(self.to_send)
             for k in range(list_len):
                 msg_b = self.to_send.pop(0)
                 try:
                     self.sock.sendall(msg_b)  # sends a message to the server
-                    config.logger.info('{} : {} >> {} -- ({})'.format(self.imei[-8:],self.imei,f'Data sent OK!', str(msg_b.hex())))
+                    LOGGER.info('{} : {} >> {} -- ({})'.format(self.imei[-8:],self.imei,f'Data sent OK!', str(msg_b.hex())))
                     try:
                         resp = self.sock.recv(256)
-                        config.logger.info('{} : {} >> {} -- ({})'.format(self.imei[-8:], self.imei, f'Data recved', str(resp.hex())))
+                        LOGGER.info('{} : {} >> {} -- ({})'.format(self.imei[-8:], self.imei, f'Data recved', str(resp.hex())))
                     except:
-                        config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'Data NOT recved'))
+                        LOGGER.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'Data NOT recved'))
 
                 except Exception as e:
-                    config.logger.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'### Data sent ERROR'))
+                    LOGGER.info('{} : {} >> {}'.format(self.imei[-8:], self.imei, f'### Data sent ERROR'))
                     if e.errno in [errno.EPIPE, errno.EBADF]:
                         # Обработка ошибки 'Broken pipe'
-                        config.logger.info('Broken pipe or bad file error detected.')
+                        LOGGER.info('Broken pipe or bad file error detected.')
                         # Тут можно закрыть сокет и попытаться восстановить соединение
                         try:
                             self.sock.close()
@@ -166,18 +176,19 @@ class Emulator:
                         self.socket_connect()
                         self.sock.sendall(msg_b)  # sends a message to the server
                 #recv_b = self.sock.recv(256)
-                #config.logger.info('{} >> {}'.format(self.s_addr, f'Data received!'))
+                #LOGGER.info('{} >> {}'.format(self.s_addr, f'Data received!'))
             # if list_len == 1:
             #     time.sleep(1)
         except Exception as e:
-            config.logger.info(e)
+            LOGGER.info(e)
             # if self.mq_connection and not self.mq_connection.is_closed:
             #     self.mq_connection.close()
             # self.consume_messages()
         # self.i += 1
 
     def callback(self, ch, method, properties, body):
-        #config.logger.info(f" [x] Received {body}")
+        LOGGER = logging.getLogger(__name__ + ".Emulator--callback")
+        #LOGGER.info(f" [x] Received {body}")
         #p = model.Point.from_json_b(body)
         #msg = b'0000000000000000000000000000000000000000000000000000000000000000'
         msg = int(0).to_bytes(64, byteorder='little')
@@ -186,16 +197,17 @@ class Emulator:
             self.tid = m.tid
             # self.egts_instance.add_service(1)
             # message_b = self.egts_instance.new_message()
-            # config.logger.info('{} >> {}'.format(self.imei, message_b.hex()))
+            # LOGGER.info('{} >> {}'.format(self.imei, message_b.hex()))
             # self.sock.sendall(message_b)  # sends a message to the server
             # recv_b = self.sock.recv(256)  #
-            # config.logger.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
+            # LOGGER.info('{} >> {}'.format(self.s_addr, recv_b.hex()))
             self.send(m.to_egts_packet(self.egts_instance ,self.imei, self.imsi, self.msisdn))
         else:
-            config.logger.info("!!!!!!!!!! EOF !!!!!!!!!!")
+            LOGGER.info("!!!!!!!!!! EOF !!!!!!!!!!")
             self.stop_queue()
 
     def create_connection(self):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--create_connection")
         connection_params = pika.ConnectionParameters(
             host=MQ.host,
             port=MQ.port,
@@ -208,15 +220,18 @@ class Emulator:
         return pika.BlockingConnection(connection_params)
 
     def create_channel(self, connection):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--create_channel")
         self.mq_channel = connection.channel()
         self.mq_channel.queue_declare(queue=self.imei, auto_delete=False, durable=True)
         return self.mq_channel
 
     def start_consuming(self, channel):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--start_consuming")
         self.mq_channel.basic_consume(queue=self.imei, on_message_callback=self.callback, auto_ack=True, consumer_tag='EMUL_EGTS_DAEMON')
         self.mq_channel.start_consuming()
 
     def consume_messages(self):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--consume_messages")
         while True:
             try:
                 defprx = socks.get_default_proxy()
@@ -227,7 +242,7 @@ class Emulator:
                 self.start_consuming(self.mq_channel)
             except AMQPConnectionError as e:
                 # Можно реализовать здесь вашу логику логирования или отчетности
-                config.logger.info("Connection was closed, retrying...")
+                LOGGER.info("Connection was closed, retrying...")
                 time.sleep(5)  # Ждем перед повторной попыткой переподключения
             finally:
                 if self.mq_connection:
@@ -235,6 +250,7 @@ class Emulator:
                         self.mq_connection.close()
 
     def stop_queue(self):
+        LOGGER = logging.getLogger(__name__ + ".Emulator--stop_queue")
         defprx = socks.get_default_proxy()
         socks.setdefaultproxy(None)
         r = requests.get(
@@ -250,7 +266,7 @@ class Emulator:
             self.mq_channel.queue_delete(queue=self.imei)
         except:
             pass
-        config.logger.info(f'Queue deleted: {self.imei}')
+        LOGGER.info(f'Queue deleted: {self.imei}')
         try:
             imeis.remove(self.imei)
         except:
@@ -259,27 +275,30 @@ class Emulator:
 
 
 def process_thread(imei):
+    LOGGER = logging.getLogger(__name__ + ".process_thread")
     emul = Emulator(imei)
-    config.logger.info('Connected')
+    LOGGER.info('Connected')
     emul.start()
 
 threads = {}
 
 def add_imei(imei):
+    LOGGER = logging.getLogger(__name__ + ".add_imei")
     if imei not in imeis:
         threads[imei] = threading.Thread(target=process_thread, args=(imei,), daemon=True)
         imeis.append(imei)
         threads[imei].start()
-        config.logger.info(f'Started thread {imei} with seconds interval')
+        LOGGER.info(f'Started thread {imei} with seconds interval')
 
 
 def queues_list():
+    LOGGER = logging.getLogger(__name__ + ".queues_list")
     defprx = socks.get_default_proxy()
     socks.setdefaultproxy(None)
     r = requests.get(f"http://{MQ.host}:{MQ.apiport}/api/queues", auth=(MQ.user, MQ.password), verify=False, proxies=None)
     socks.setdefaultproxy(defprx)
     js = r.json()
-    #config.logger.info(js)
+    #LOGGER.info(js)
     queues = []
     q_list = [item.get('name', '') for item in js]
     for item in js:
@@ -307,22 +326,25 @@ def queues_list():
     return queues
 
 def check_threads(queues):
+    LOGGER = logging.getLogger(__name__ + ".check_threads")
     for imei in imeis:
         if not threads.get(imei, None):
             threads[imei] = threading.Thread(target=process_thread, args=(imei,), daemon=True)
             threads[imei].start()
-            config.logger.info(f'Started thread {imei} with seconds interval')
+            LOGGER.info(f'Started thread {imei} with seconds interval')
     for thread in threads:
         if not(threads[thread].is_alive()):
-            config.logger.info(f'Finished thread {thread}')
+            LOGGER.info(f'Finished thread {thread}')
             try:
                 imeis.remove(thread)
             except Exception as e:
-                config.logger.info(e)
+                LOGGER.info(e)
 
 if __name__ == '__main__':
+    LOGGER = logging.getLogger(__name__)
+    LOGGER.info("Starting Emulator")
     while True:
-        config.logger.info('------------------------------------\n  Scanning Threads...\n------------------------------------')
+        LOGGER.debug('------------------------------------\n  Scanning Threads...\n------------------------------------')
         time.sleep(3)
         qs = queues_list()
         check_threads(qs)
