@@ -107,7 +107,7 @@ class Emulator:
                 #sys.exit(0)
                 break
             except Exception as e:
-                LOGGER.error("%s: " + e, config.name, exc_info=True)
+                LOGGER.error("%s: " + str(e), config.name, exc_info=True)
                 time.sleep(1)
 
 
@@ -126,7 +126,7 @@ class Emulator:
         try:
             self.sock.close()
         except Exception as e:
-            LOGGER.debug("%s: " + e, config.name)
+            LOGGER.debug("%s: " + str(e), config.name)
 
     def clear(self):
         LOGGER = logging.getLogger(__name__ + ".Emulator--clear")
@@ -180,7 +180,7 @@ class Emulator:
             # if list_len == 1:
             #     time.sleep(1)
         except Exception as e:
-            LOGGER.error("%s: " + e, config.name, exc_info=True)
+            LOGGER.error("%s: " + str(e), config.name, exc_info=True)
             # if self.mq_connection and not self.mq_connection.is_closed:
             #     self.mq_connection.close()
             # self.consume_messages()
@@ -338,7 +338,7 @@ def check_threads(queues):
             try:
                 imeis.remove(thread)
             except Exception as e:
-                LOGGER.error("%s: " + e, config.name, exc_info=True)
+                LOGGER.error("%s: " + str(e), config.name, exc_info=True)
 
 if __name__ == '__main__':
     LOGGER = logging.getLogger(__name__)
