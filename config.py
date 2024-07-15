@@ -7,8 +7,8 @@ logging.config.dictConfig(json.load(open('logging.json','r')))
 LOGGER = logging.getLogger(__name__)
 
 class MQ:
-    # host = 'rmq.pg.db.services.local'
-    host = '10.8.0.5'
+    host = 'rmq.db.services.local'
+    #host = '10.8.0.5'
     user = 'rmuser'
     password = 'rmpassword'
     port = 5672
@@ -16,8 +16,8 @@ class MQ:
     vhost = 'egts'
 
 DATABASE = {
-    #'host': 'pg.db.services.local',
-    'host': '10.8.0.5',
+    'host': 'pg.db.services.local',
+    #'host': '10.8.0.5',
     'user': 'postgres',
     'password': 'psqlpass',
     'database': 'vindcgibdd'
