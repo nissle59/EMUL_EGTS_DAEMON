@@ -1,7 +1,5 @@
 import json
-import logging
 import logging.config
-import sys
 
 name = "EGTS Emulator (Virtual GPS Devices)"
 
@@ -9,7 +7,7 @@ logging.config.dictConfig(json.load(open('logging.json','r')))
 LOGGER = logging.getLogger(__name__)
 
 class MQ:
-    #host = 'rmq.local'
+    # host = 'rmq.pg.db.services.local'
     host = '10.8.0.5'
     user = 'rmuser'
     password = 'rmpassword'
@@ -18,7 +16,7 @@ class MQ:
     vhost = 'egts'
 
 DATABASE = {
-    #'host': 'db.local',
+    #'host': 'pg.db.services.local',
     'host': '10.8.0.5',
     'user': 'postgres',
     'password': 'psqlpass',
