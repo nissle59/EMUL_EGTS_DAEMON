@@ -21,8 +21,7 @@ class NoProxyHTTPHandler(logging.handlers.HTTPHandler):
         finally:
             # Восстанавливаем настройки прокси
             if current_proxy:
-                socks.setdefaultproxy(current_proxy.proxy_type, current_proxy.addr, current_proxy.port,
-                                      current_proxy.rdns, current_proxy.username, current_proxy.password)
+                socks.setdefaultproxy(current_proxy)
                 socket.socket = socks.socksocket
             else:
                 socks.setdefaultproxy(None)
