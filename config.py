@@ -1,5 +1,32 @@
 import json
 import logging.config
+import logging.handlers
+import socket
+
+import socks
+
+
+class NoProxyHTTPHandler(logging.handlers.HTTPHandler):
+    def emit(self, record):
+        # Сохраняем текущие настройки прокси
+        current_proxy = socks.get_default_proxy()
+
+        # Отключаем прокси для текущего потока
+        socks.setdefaultproxy(None)
+        socket.socket = socks.socksocket
+
+        try:
+            # Отправляем лог без использования прокси
+            super().emit(record)
+        finally:
+            # Восстанавливаем настройки прокси
+            if current_proxy:
+                socks.setdefaultproxy(current_proxy.proxy_type, current_proxy.addr, current_proxy.port,
+                                      current_proxy.rdns, current_proxy.username, current_proxy.password)
+                socket.socket = socks.socksocket
+            else:
+                socks.setdefaultproxy(None)
+                socket.socket = socks.socksocket
 
 name = "EGTS Emulator (Virtual GPS Devices)"
 
