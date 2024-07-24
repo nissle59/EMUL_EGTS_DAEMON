@@ -188,19 +188,10 @@ class Emulator:
 
     def callback(self, ch, method, properties, body):
         LOGGER = logging.getLogger(__name__ + ".Emulator--callback")
-        #LOGGER.info("%s: " + f" [x] Received {body}", config.name)
-        #p = model.Point.from_json_b(body)
-        #msg = b'0000000000000000000000000000000000000000000000000000000000000000'
         msg = int(0).to_bytes(64, byteorder='little')
         if body != msg:
             m = model.Point.from_b64(body)
             self.tid = m.tid
-            # self.egts_instance.add_service(1)
-            # message_b = self.egts_instance.new_message()
-            # LOGGER.info("%s: " + '{} >> {}'.format(self.imei, message_b.hex()), config.name)
-            # self.sock.sendall(message_b)  # sends a message to the server
-            # recv_b = self.sock.recv(256)  #
-            # LOGGER.info("%s: " + '{} >> {}'.format(self.s_addr, recv_b.hex()), config.name)
             self.send(m.to_egts_packet(self.egts_instance ,self.imei, self.imsi, self.msisdn))
         else:
             LOGGER.info("%s: " + "!!!!!!!!!! EOF !!!!!!!!!!", config.name)
@@ -222,7 +213,7 @@ class Emulator:
     def create_channel(self, connection):
         LOGGER = logging.getLogger(__name__ + ".Emulator--create_channel")
         self.mq_channel = connection.channel()
-        self.mq_channel.queue_declare(queue=self.imei, auto_delete=False, durable=True)
+        self.mq_channel.queue_declare(queue=self.imei, auto_delete=False, durable=True, arguments={'x-expires': 120000})
         return self.mq_channel
 
     def start_consuming(self, channel):

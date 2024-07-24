@@ -17,30 +17,6 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 
 
-# def disable_proxy(proxy_id):
-#     config.logger.debug(f'Disable {proxy_id} proxy')
-#     sql = "UPDATE gosuslugi.proxies_map SET active = false WHERE id = %(pid)s"
-#     cur.execute(sql, {'pid':proxy_id})
-#     sql = "UPDATE gosuslugi.gu_accounts SET proxy_id = null WHERE proxy_id = %(pid)s"
-#     cur.execute(sql, {'pid': proxy_id})
-#     conn.commit()
-
-# def set_proxy_for_account(account_id):
-#     query = f"""UPDATE gosuslugi.gu_accounts SET proxy_id = (select proxy_id from gosuslugi.free_proxies limit 1) where account_id = %(account_id)s RETURNING proxy_id"""
-#     cur.execute(query, {'account_id':account_id})
-#     conn.commit()
-#     data = cur.fetchone()
-#     config.logger.debug(data)
-#     if data:
-#         try:
-#             return int(dict(data)['proxy_id'])
-#         except Exception as e:
-#             config.logger.debug(f"set_proxy_err: {e}")
-#     else:
-#         return False
-
-
-
 def get_active_proxies(proxy_type: str = 'SOCKS5'):
     LOGGER = logging.getLogger(__name__+".get_active_proxies")
     if proxy_type == "HTTPS":
