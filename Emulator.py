@@ -12,6 +12,8 @@ from pika.exceptions import AMQPConnectionError
 import socks
 import threading
 
+from requests.auth import HTTPBasicAuth
+
 import db
 import model
 # from db import Database as DB
@@ -54,6 +56,10 @@ def generate_msisdn(imei):
 
 class Emulator:
     def __init__(self, imei):
+        self.stopped = False
+        self.rhead = {
+            'Content-Type': 'application/json'
+        }
         LOGGER = logging.getLogger(__name__ + ".Emulator--init")
         # self.s_addr = '46.50.138.139'    # отправка в Форт
         # self.s_port = 65521              # отправка в Форт
@@ -75,7 +81,7 @@ class Emulator:
 
     def socket_connect(self):
         LOGGER = logging.getLogger(__name__ + ".Emulator--socket_connect")
-        while True:
+        while not self.stopped:
             try:
                 prx = next(r_proxies)
                 socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, prx['ip'], int(prx['port']), True, prx['username'], prx['password'])
@@ -244,6 +250,7 @@ class Emulator:
         LOGGER = logging.getLogger(__name__ + ".Emulator--stop_queue")
         defprx = socks.get_default_proxy()
         socks.setdefaultproxy(None)
+        self.stopped = True
         r = requests.get(
             f"http://api-external.tm.8525.ru/rnis/emulationCompleted?token=5jossnicxhn75lht7aimal7r2ocvg6o7&taskId={self.tid}&imei={self.imei}",
             verify=False)
@@ -251,13 +258,23 @@ class Emulator:
         self.mq_channel.basic_cancel(consumer_tag='EMUL_EGTS_DAEMON')
         try:
             self.mq_channel.queue_delete(queue=f"{self.imei}_base")
+            LOGGER.info(f'Queue deleted: {self.imei}_base')
         except:
             pass
         try:
             self.mq_channel.queue_delete(queue=self.imei)
+            LOGGER.info(f'Queue deleted: {self.imei}')
         except:
             pass
-        LOGGER.info("%s: " + f'Queue deleted: {self.imei}', config.name)
+        try:
+            r = requests.delete(
+                url=f'http://{MQ.host}:{MQ.apiport}/api/exchanges/{MQ.vhost}/{self.imei}_ex',
+                auth=HTTPBasicAuth(MQ.user, MQ.password),
+                headers=self.rhead
+            )
+            LOGGER.info(f'Exchange deleted: {self.imei}_ex')
+        except:
+            pass
         try:
             imeis.remove(self.imei)
         except:
