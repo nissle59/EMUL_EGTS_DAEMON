@@ -237,7 +237,7 @@ class Emulator:
 
     def consume_messages(self):
         LOGGER = logging.getLogger(__name__ + ".Emulator--consume_messages")
-        while True:
+        while not self.stopped:
             try:
                 defprx = socks.get_default_proxy()
                 socks.setdefaultproxy(None)
@@ -358,6 +358,10 @@ def check_threads(queues):
             LOGGER.info("%s: " + f'Finished thread {thread}', config.name)
             try:
                 imeis.remove(thread)
+            except Exception as e:
+                LOGGER.error("%s: " + str(e), config.name, exc_info=True)
+            try:
+                del threads[thread]
             except Exception as e:
                 LOGGER.error("%s: " + str(e), config.name, exc_info=True)
 
