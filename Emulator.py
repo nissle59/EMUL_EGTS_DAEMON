@@ -266,15 +266,15 @@ class Emulator:
             LOGGER.info(f'Queue deleted: {self.imei}')
         except:
             pass
-        try:
-            r = requests.delete(
-                url=f'http://{MQ.host}:{MQ.apiport}/api/exchanges/{MQ.vhost}/{self.imei}_ex',
-                auth=HTTPBasicAuth(MQ.user, MQ.password),
-                headers=self.rhead
-            )
-            LOGGER.info(f'Exchange deleted: {self.imei}_ex')
-        except:
-            pass
+        # try:
+        #     r = requests.delete(
+        #         url=f'http://{MQ.host}:{MQ.apiport}/api/exchanges/{MQ.vhost}/{self.imei}_ex',
+        #         auth=HTTPBasicAuth(MQ.user, MQ.password),
+        #         headers=self.rhead
+        #     )
+        #     LOGGER.info(f'Exchange deleted: {self.imei}_ex')
+        # except:
+        #     pass
         try:
             imeis.remove(self.imei)
         except:
