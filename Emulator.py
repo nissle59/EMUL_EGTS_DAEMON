@@ -28,9 +28,6 @@ proxies = db.get_active_proxies()
 r_proxies = cycle(proxies)
 
 
-# from ApiService import ApiService as API
-
-
 def send_stop_signal(imei, task_id):
     LOGGER = logging.getLogger(__name__ + ".send_stop_signal")
     try:
@@ -44,28 +41,20 @@ def send_stop_signal(imei, task_id):
 
 def generate_imsi(imei):
     LOGGER = logging.getLogger(__name__ + ".generate_imsi")
-    # MCC (Mobile Country Code) - используем первые 3 цифры IMEI
     mcc = imei[:3]
-    # MNC (Mobile Network Code) - используем следующие 2 цифры IMEI
     mnc = imei[3:5]
-    # MSIN (Mobile Subscriber Identification Number) - случайные оставшиеся 11 цифр
     msin = imei[-11:]
     imsi = mcc + mnc + msin
     return imsi
-    # return '1111111111111111'
 
 
 def generate_msisdn(imei):
     LOGGER = logging.getLogger(__name__ + ".generate_msisdn")
-    # Country Code - используем первые 2 цифры IMEI
     country_code = imei[:2]
-    # National Destination Code (NDC) - используем следующие 2 цифры IMEI
     ndc = imei[2:4]
-    # Subscriber Number - случайные оставшиеся цифры до нужной длины (8)
     subscriber_number = imei[-11:]
     msisdn = country_code + ndc + subscriber_number
     return msisdn
-    # return '111111111111111'
 
 
 class Emulator:
@@ -237,7 +226,7 @@ class Emulator:
     def create_channel(self, connection):
         LOGGER = logging.getLogger(__name__ + ".Emulator--create_channel")
         self.mq_channel = connection.channel()
-        self.mq_channel.queue_declare(queue=self.imei, auto_delete=False, durable=True, arguments={'x-expires': 120000})
+        #self.mq_channel.queue_declare(queue=self.imei, auto_delete=False, durable=True, arguments={'x-expires': 120000})
         return self.mq_channel
 
     def start_consuming(self, channel):
