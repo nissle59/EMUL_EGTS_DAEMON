@@ -203,12 +203,12 @@ class Emulator:
     def callback(self, ch, method, properties, body):
         LOGGER = logging.getLogger(__name__ + ".Emulator--callback")
         msg = base64.b64encode(int(0).to_bytes(64, byteorder='little'))
-        if body != msg:
+        try:
             m = model.Point.from_b64(body)
             self.tid = m.tid
             self.send(m.to_egts_packet(self.egts_instance, self.imei, self.imsi, self.msisdn))
-        else:
-            LOGGER.info("%s: " + "!!!!!!!!!! EOF !!!!!!!!!!", config.name)
+        except Exception as e:
+            LOGGER.info("!!!!!!!!!! EOF !!!!!!!!!!")
             self.stop_queue()
 
     def create_connection(self):
